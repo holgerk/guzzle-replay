@@ -6,24 +6,60 @@ use GuzzleHttp\Client;
 use GuzzleHttp\HandlerStack;
 use Holgerk\GuzzleReplay\Middleware;
 use Holgerk\GuzzleReplay\Mode;
+use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\Attributes\Test;
 use PHPUnit\Framework\TestCase;
+use RuntimeException;
+use Symfony\Component\Process\Process;
+use Throwable;
 
 class MiddlewareTest extends TestCase
 {
-
-    #[Test]
-    public function record_test(): void
+    public static function setUpBeforeClass(): void
     {
-        $stack = HandlerStack::create();
-        $middleware = Middleware::create(Mode::Record);
-        $stack->push($middleware);
-        $client = new Client(['handler' => $stack]);
+        // start test server
+        $testServer = __DIR__ . '/test-server.php';
+        $process = new Process(['php', '-S', 'localhost:8000', $testServer]);
+        $process->start();
+        $client = new Client();
+        $tries = 10;
+        while ($tries-- >= 0) {
+            try {
+                $client->get('http://localhost:8000');
+                break;
+            } catch (Throwable) {
+                usleep(1000 * 50);
+            }
+            if ($tries === 0) {
+                throw new RuntimeException("Failed to reach test server");
+            }
+        }
+    }
 
-        $response = $client->get('https://httpbin.org/uuid');
-        $response = $client->get('https://httpbin.org/status/400', ['http_errors' => false]);
-//        echo "response: " . ($response->getBody()->getContents()) . "\n";
-//        echo "recording: " . json_encode($middleware->getRecording(), JSON_PRETTY_PRINT) . "\n";
+    public static function record_test_dataProvider(): array
+    {
+        return [
+            'case 1' => ['className' => 'NewRecording'],
+            'case 2' => ['className' => 'UpdateRecording'],
+        ];
+    }
+
+    #[
+        Test,
+        DataProvider('record_test_dataProvider')
+    ]
+    public function record_test(string $className): void
+    {
+        copy(__DIR__ . "/cases/$className.before.php", __DIR__ . "/cases/$className.test.php");
+        include __DIR__ . "/cases/$className.test.php";
+        $fqnClassName = '\\Holgerk\\GuzzleReplay\\Tests\\cases\\' . $className;
+        $case = new $fqnClassName();
+        $middleware = $case->executeTest();
+        $middleware->writeRecording();
+        self::assertFileEquals(
+            __DIR__ . "/cases/$className.expected.php",
+            __DIR__ . "/cases/$className.test.php",
+        );
     }
 
     #[Test]
@@ -35,169 +71,66 @@ class MiddlewareTest extends TestCase
         $client = new Client(['handler' => $stack]);
 
         $response = $client->get('https://httpbin.org/uuid');
-        echo "response: " . ($response->getBody()->getContents()) . "\n";
-    }
-
-    public static function record_testGuzzleRecording(): \Holgerk\GuzzleReplay\Recording
-    {
-        // generated - do not edit
-        return \Holgerk\GuzzleReplay\Recording::fromJson(json_decode(
-            <<<'_JSON_'
-            {
-                    "records": [
-                        {
-                            "requestModel": {
-                                "method": "GET",
-                                "uri": "https:\/\/httpbin.org\/uuid",
-                                "headers": {
-                                    "User-Agent": [
-                                        "GuzzleHttp\/7"
-                                    ],
-                                    "Host": [
-                                        "httpbin.org"
-                                    ]
-                                },
-                                "body": "",
-                                "version": "1.1"
-                            },
-                            "responseModel": {
-                                "status": 200,
-                                "headers": {
-                                    "Date": [
-                                        "Wed, 10 Apr 2024 07:28:30 GMT"
-                                    ],
-                                    "Content-Type": [
-                                        "application\/json"
-                                    ],
-                                    "Content-Length": [
-                                        "53"
-                                    ],
-                                    "Connection": [
-                                        "keep-alive"
-                                    ],
-                                    "Server": [
-                                        "gunicorn\/19.9.0"
-                                    ],
-                                    "Access-Control-Allow-Origin": [
-                                        "*"
-                                    ],
-                                    "Access-Control-Allow-Credentials": [
-                                        "true"
-                                    ]
-                                },
-                                "body": "{\n  \"uuid\": \"f40c713d-202c-4d02-92ec-2c4806ad25af\"\n}\n",
-                                "version": "1.1",
-                                "reason": "OK"
-                            }
-                        },
-                        {
-                            "requestModel": {
-                                "method": "GET",
-                                "uri": "https:\/\/httpbin.org\/status\/400",
-                                "headers": {
-                                    "User-Agent": [
-                                        "GuzzleHttp\/7"
-                                    ],
-                                    "Host": [
-                                        "httpbin.org"
-                                    ]
-                                },
-                                "body": "",
-                                "version": "1.1"
-                            },
-                            "responseModel": {
-                                "status": 400,
-                                "headers": {
-                                    "Date": [
-                                        "Wed, 10 Apr 2024 07:28:30 GMT"
-                                    ],
-                                    "Content-Type": [
-                                        "text\/html; charset=utf-8"
-                                    ],
-                                    "Content-Length": [
-                                        "0"
-                                    ],
-                                    "Connection": [
-                                        "keep-alive"
-                                    ],
-                                    "Server": [
-                                        "gunicorn\/19.9.0"
-                                    ],
-                                    "Access-Control-Allow-Origin": [
-                                        "*"
-                                    ],
-                                    "Access-Control-Allow-Credentials": [
-                                        "true"
-                                    ]
-                                },
-                                "body": "",
-                                "version": "1.1",
-                                "reason": "BAD REQUEST"
-                            }
-                        }
-                    ]
-                }
-            _JSON_,
-            true,
-            512,
-            JSON_THROW_ON_ERROR
-        ));
+        $data = json_decode($response->getBody()->getContents());
+        // normally https://httpbin.org/uuid would answer with a new uuid, but we use
+        // our recording and this will have a fixed value
+        self::assertEquals('c12f2b32-f51c-4241-83a8-c7d92115a4a8', $data->uuid);
     }
 
     public static function replay_testGuzzleRecording(): \Holgerk\GuzzleReplay\Recording
     {
-        // generated - do not edit
+        // GENERATED - DO NOT EDIT
         return \Holgerk\GuzzleReplay\Recording::fromJson(json_decode(
             <<<'_JSON_'
             {
-                    "records": [
-                        {
-                            "requestModel": {
-                                "method": "GET",
-                                "uri": "https:\/\/httpbin.org\/uuid",
-                                "headers": {
-                                    "User-Agent": [
-                                        "GuzzleHttp\/7"
-                                    ],
-                                    "Host": [
-                                        "httpbin.org"
-                                    ]
-                                },
-                                "body": "",
-                                "version": "1.1"
+                "records": [
+                    {
+                        "requestModel": {
+                            "method": "GET",
+                            "uri": "https:\/\/httpbin.org\/uuid",
+                            "headers": {
+                                "User-Agent": [
+                                    "GuzzleHttp\/7"
+                                ],
+                                "Host": [
+                                    "httpbin.org"
+                                ]
                             },
-                            "responseModel": {
-                                "status": 200,
-                                "headers": {
-                                    "Date": [
-                                        "Wed, 10 Apr 2024 07:37:30 GMT"
-                                    ],
-                                    "Content-Type": [
-                                        "application\/json"
-                                    ],
-                                    "Content-Length": [
-                                        "53"
-                                    ],
-                                    "Connection": [
-                                        "keep-alive"
-                                    ],
-                                    "Server": [
-                                        "gunicorn\/19.9.0"
-                                    ],
-                                    "Access-Control-Allow-Origin": [
-                                        "*"
-                                    ],
-                                    "Access-Control-Allow-Credentials": [
-                                        "true"
-                                    ]
-                                },
-                                "body": "{\n  \"uuid\": \"f5a3d210-5ddf-47c4-80b2-3fce8cc3e424\"\n}\n",
-                                "version": "1.1",
-                                "reason": "OK"
-                            }
+                            "body": "",
+                            "version": "1.1"
+                        },
+                        "responseModel": {
+                            "status": 200,
+                            "headers": {
+                                "Date": [
+                                    "Sat, 13 Apr 2024 20:09:52 GMT"
+                                ],
+                                "Content-Type": [
+                                    "application\/json"
+                                ],
+                                "Content-Length": [
+                                    "53"
+                                ],
+                                "Connection": [
+                                    "keep-alive"
+                                ],
+                                "Server": [
+                                    "gunicorn\/19.9.0"
+                                ],
+                                "Access-Control-Allow-Origin": [
+                                    "*"
+                                ],
+                                "Access-Control-Allow-Credentials": [
+                                    "true"
+                                ]
+                            },
+                            "body": "{\n  \"uuid\": \"c12f2b32-f51c-4241-83a8-c7d92115a4a8\"\n}\n",
+                            "version": "1.1",
+                            "reason": "OK"
                         }
-                    ]
-                }
+                    }
+                ]
+            }
             _JSON_,
             true,
             512,

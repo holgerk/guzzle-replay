@@ -9,16 +9,17 @@ use Psr\Http\Message\ResponseInterface;
 
 final class Middleware
 {
+    private Recorder $recorder;
     private Recording $recording;
 
     public static function create(Mode $mode, ?Recorder $recorder = null): self
     {
-        $recorder ??= new Recorder();
         $self = new self($mode);
+        $self->recorder ??= new Recorder();
         if ($mode === Mode::Replay) {
-            $self->setRecording($recorder->replay());
+            $self->setRecording($self->recorder->replay());
         } else {
-            $recorder->record($self->getRecording());
+            $self->recorder->record($self->getRecording());
         }
         return $self;
     }
@@ -55,6 +56,11 @@ final class Middleware
                 }
             );
         };
+    }
+
+    public function writeRecording()
+    {
+        $this->recorder->writeRecording();
     }
 
 

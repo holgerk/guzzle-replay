@@ -2,6 +2,7 @@
 
 namespace Holgerk\GuzzleReplay;
 
+use DateTimeImmutable;
 use PHPUnit\Framework\TestCase;
 use ReflectionClass;
 
@@ -10,32 +11,36 @@ class Recorder
 
 
     private ?Recording $recording;
-    private ?string $testClass;
-    private ?string $testMethod;
+    private ?string $callerClass;
+    private ?string $callerMethod;
 
     public function record(Recording $recording): void
     {
         $this->recording = $recording;
         register_shutdown_function([$this, 'writeRecording']);
         $this->findCallingTestMethodAndClass();
-
     }
 
     public function replay(): Recording
     {
         $this->findCallingTestMethodAndClass();
-        $class = new ReflectionClass($this->testClass);
+        $class = new ReflectionClass($this->callerClass);
         $hasMethod = $class->hasMethod($this->getMethodWithRecording());
         if (!$hasMethod) {
             return new Recording();
         }
-        return call_user_func($this->testClass . '::' . $this->getMethodWithRecording());
+        return call_user_func($this->callerClass . '::' . $this->getMethodWithRecording());
     }
 
-    private function writeRecording(): void
+    public function writeRecording(): void
     {
-        assert($this->recording !== null);
-        $class = new ReflectionClass($this->testClass);
+        if ($this->recording === null) {
+            return;
+        }
+        $recording = $this->recording;
+        $this->recording = null;
+
+        $class = new ReflectionClass($this->callerClass);
         $hasMethod = $class->hasMethod($this->getMethodWithRecording());
         $lines = file($class->getFileName());
         $insertStartLine = null;
@@ -54,17 +59,16 @@ class Recorder
             }
         }
         $recordingClass = Recording::class;
-        $recordingJson = json_encode($this->recording, JSON_PRETTY_PRINT);
-        $recordingJson = implode("\n                ", explode("\n", $recordingJson));
+        $recordingJson = json_encode($recording, JSON_PRETTY_PRINT);
+        $recordingJson = implode("\n            ", explode("\n", $recordingJson));
         $methodString = <<<EOS
-        
             public static function {$this->getMethodWithRecording()}(): \\$recordingClass
             {
-                // generated - do not edit
+                // GENERATED - DO NOT EDIT
                 return \\$recordingClass::fromJson(json_decode(
                     <<<'_JSON_'
                     $recordingJson
-                    _JSON_, 
+                    _JSON_,
                     true,
                     512,
                     JSON_THROW_ON_ERROR
@@ -85,23 +89,24 @@ class Recorder
 
     private function findCallingTestMethodAndClass(): void
     {
-        // find calling test method
-        $this->testClass = null;
-        $this->testMethod = null;
-        foreach (debug_backtrace(DEBUG_BACKTRACE_IGNORE_ARGS) as $stackItem) {
-            if (is_subclass_of($stackItem['class'], TestCase::class)) {
-                $this->testClass = $stackItem['class'];
-                $this->testMethod = $stackItem['function'];
+        // find calling class and method
+        $this->callerClass = null;
+        $this->callerMethod = null;
+        $stackItems = debug_backtrace(DEBUG_BACKTRACE_IGNORE_ARGS);
+        foreach ($stackItems as $index => $stackItem) {
+            if ($stackItem['class'] === Middleware::class) {
+                $this->callerClass = $stackItems[$index + 1]['class'];
+                $this->callerMethod = $stackItems[$index + 1]['function'];
                 break;
             }
         }
-        assert($this->testClass !== null);
-        assert($this->testMethod !== null);
+        assert($this->callerClass !== null);
+        assert($this->callerMethod !== null);
     }
 
     private function getMethodWithRecording(): string
     {
-        $recordingMethod = $this->testMethod . 'GuzzleRecording';
+        $recordingMethod = $this->callerMethod . 'GuzzleRecording';
         return $recordingMethod;
     }
 }
