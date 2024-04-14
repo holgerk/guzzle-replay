@@ -42,7 +42,7 @@ final class RequestModel implements JsonSerializable
     {
         return [
             'method' => $this->method,
-            'uri' => $this->uri,
+            'uri' => (string) $this->uri,
             'headers' => $this->headers,
             'body' => $this->body,
             'version' => $this->version,
