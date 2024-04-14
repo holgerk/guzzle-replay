@@ -46,10 +46,10 @@ class MiddlewareTest extends TestCase
         ];
     }
 
-    #[
-        Test,
-        DataProvider('record_test_dataProvider')
-    ]
+    /**
+     * @test
+     * @dataProvider record_test_dataProvider
+     */
     public function record_test(string $className): void
     {
         copy(__DIR__ . "/cases/$className.before.php", __DIR__ . "/cases/$className.test.php");
