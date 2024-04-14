@@ -3,3 +3,4 @@
 composer.lock
 .phpunit.cache
 /tests/cases/*.test.php
+.phpunit.result.cache

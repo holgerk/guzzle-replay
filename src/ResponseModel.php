@@ -29,6 +29,7 @@ final class ResponseModel implements JsonSerializable
         return $self;
     }
 
+    /** @param array{status: int, headers: array, body: string, version: string, reason: string} $data */
     public static function fromJson(array $data): self
     {
         $self = new self();

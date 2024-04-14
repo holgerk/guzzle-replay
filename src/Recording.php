@@ -4,6 +4,8 @@ namespace Holgerk\GuzzleReplay;
 
 use GuzzleHttp\Psr7\Response;
 use JsonSerializable;
+use SebastianBergmann\Diff\Differ;
+use SebastianBergmann\Diff\Output\UnifiedDiffOutputBuilder;
 
 final class Recording implements JsonSerializable
 {
@@ -31,11 +33,86 @@ final class Recording implements JsonSerializable
 
     public function findResponse(RequestModel $requestModel): Response
     {
+        // TODO throw if empty($this->records)
+        // TODO throw if record already used
+
         foreach ($this->records as $record) {
             if ($record->requestModel == $requestModel) {
                 return $record->responseModel->toResponse();
             }
         }
-        throw new NoReplayFoundException();
+
+        // no matching response found, create a helpful exception
+
+        $differenceByRecord = [];
+        foreach ($this->records as $record) {
+            $difference = 0;
+            if ($requestModel->getMethod() != $record->requestModel->getMethod()) {
+                $difference += levenshtein(
+                    $requestModel->getMethod(),
+                    $record->requestModel->getMethod()
+                );
+            }
+            if ((string) $requestModel->getUri() != (string) $record->requestModel->getUri()) {
+                $difference += levenshtein(
+                    (string) $requestModel->getUri(),
+                    (string) $record->requestModel->getUri()
+                );
+            }
+            if ($requestModel->getHeaders() != $record->requestModel->getHeaders()) {
+                $difference += levenshtein(
+                    json_encode($requestModel->getHeaders()),
+                    json_encode($record->requestModel->getHeaders())
+                );
+            }
+            if ($requestModel->getBody() != $record->requestModel->getBody()) {
+                $difference += levenshtein(
+                    $requestModel->getBody(),
+                    $record->requestModel->getBody()
+                );
+            }
+            if ($requestModel->getVersion() != $record->requestModel->getVersion()) {
+                $difference += levenshtein(
+                    $requestModel->getVersion(),
+                    $record->requestModel->getVersion()
+                );
+            }
+            $differenceByRecord[spl_object_id($record)] = $difference;
+        }
+        $sortedRecords = $this->records;
+        usort($sortedRecords, fn(Record $a, Record $b) =>
+            $differenceByRecord[spl_object_id($a)] <=> $differenceByRecord[spl_object_id($b)]
+        );
+
+        $builder = new UnifiedDiffOutputBuilder(
+            "--- Expected\n+++ Actual\n",
+            false
+        );
+
+        $differ = new Differ($builder);
+        $diff = trim($differ->diff((string) $sortedRecords[0]->requestModel, (string) $requestModel));
+
+        $message = <<<EOS
+
+        No replay found for this request:
+        ---------------------------------
+        - $requestModel
+        
+        Diff to best matching expected request:
+        ---------------------------------------
+        $diff
+
+        All expected requests (sorted by difference):
+        ---------------------------------------------
+        EOS;
+        foreach ($sortedRecords as $record) {
+            $message .= <<<EOS
+
+            - $record->requestModel
+            
+            EOS;
+        }
+        $message = implode("\n| ", explode("\n", $message));
+        throw new NoReplayFoundException($message);
     }
 }

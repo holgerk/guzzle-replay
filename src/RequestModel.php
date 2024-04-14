@@ -27,6 +27,7 @@ final class RequestModel implements JsonSerializable
         return $self;
     }
 
+    /** @param array{method: string, uri: string, headers: array, body: string, version: string} $data */
     public static function fromJson(array $data): self
     {
         $self = new self();
@@ -47,5 +48,42 @@ final class RequestModel implements JsonSerializable
             'body' => $this->body,
             'version' => $this->version,
         ];
+    }
+
+    public function __toString(): string
+    {
+        return <<<EOS
+        Request 
+            method: $this->method
+            uri: $this->uri
+            headers: $this->headers
+            body: $this->body
+            version: $this->version
+        EOS;
+    }
+
+    public function getMethod(): string
+    {
+        return $this->method;
+    }
+
+    public function getUri(): UriInterface
+    {
+        return $this->uri;
+    }
+
+    public function getHeaders(): array
+    {
+        return $this->headers;
+    }
+
+    public function getBody(): string
+    {
+        return $this->body;
+    }
+
+    public function getVersion(): string
+    {
+        return $this->version;
     }
 }
