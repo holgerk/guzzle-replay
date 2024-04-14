@@ -4,7 +4,7 @@ namespace Holgerk\GuzzleReplay;
 
 use JsonSerializable;
 
-class Record implements JsonSerializable
+final class Record implements JsonSerializable
 {
     public function __construct(
         public RequestModel $requestModel,

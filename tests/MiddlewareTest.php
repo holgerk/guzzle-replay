@@ -6,6 +6,7 @@ use GuzzleHttp\Client;
 use GuzzleHttp\HandlerStack;
 use Holgerk\GuzzleReplay\Middleware;
 use Holgerk\GuzzleReplay\Mode;
+use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\Attributes\Test;
 use PHPUnit\Framework\TestCase;
@@ -13,6 +14,7 @@ use RuntimeException;
 use Symfony\Component\Process\Process;
 use Throwable;
 
+#[CoversClass(Middleware::class)]
 class MiddlewareTest extends TestCase
 {
     public static function setUpBeforeClass(): void

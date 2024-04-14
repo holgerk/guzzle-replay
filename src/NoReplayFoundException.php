@@ -4,6 +4,6 @@ namespace Holgerk\GuzzleReplay;
 
 use AssertionError;
 
-class NoReplayFoundException extends AssertionError
+final class NoReplayFoundException extends AssertionError
 {
 }

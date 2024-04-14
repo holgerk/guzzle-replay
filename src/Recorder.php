@@ -2,14 +2,10 @@
 
 namespace Holgerk\GuzzleReplay;
 
-use DateTimeImmutable;
-use PHPUnit\Framework\TestCase;
 use ReflectionClass;
 
 class Recorder
 {
-
-
     private ?Recording $recording;
     private ?string $callerClass;
     private ?string $callerMethod;
@@ -106,7 +102,6 @@ class Recorder
 
     private function getMethodWithRecording(): string
     {
-        $recordingMethod = $this->callerMethod . 'GuzzleRecording';
-        return $recordingMethod;
+        return $this->callerMethod . 'GuzzleRecording';
     }
 }
