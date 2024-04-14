@@ -39,8 +39,8 @@ class MiddlewareTest extends TestCase
     public static function record_test_dataProvider(): array
     {
         return [
-            'case 1' => ['className' => 'NewRecording'],
-            'case 2' => ['className' => 'UpdateRecording'],
+            'case NewRecording'    => ['className' => 'NewRecording'],
+            'case UpdateRecording' => ['className' => 'UpdateRecording'],
         ];
     }
 

@@ -50,14 +50,14 @@ class NewRecording {
                                 "Connection": [
                                     "close"
                                 ],
-                                "X-Powered-By": [
-                                    "PHP\/8.3.3"
-                                ],
                                 "Content-Type": [
                                     "application\/json"
                                 ],
                                 "Date": [
                                     "Sat, 13 Apr 2024 14:22:40 GMT"
+                                ],
+                                "X-Powered-By": [
+                                    "PHP"
                                 ]
                             },
                             "body": "{\"queryParam\":\"42\"}",
