@@ -26,5 +26,8 @@
         "phpunit/phpunit": "^11",
         "symfony/var-dumper": "^7",
         "symfony/process": "^7"
+    },
+    "scripts": {
+        "test:unit": "phpunit"
     }
 }
