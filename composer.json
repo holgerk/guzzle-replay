@@ -30,6 +30,6 @@
         "holgerk/assert-golden": "^2.0.6"
     },
     "scripts": {
-        "test:unit": "phpunit"
+        "test:unit": "phpunit tests"
     }
 }

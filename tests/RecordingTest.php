@@ -3,7 +3,6 @@
 namespace Holgerk\GuzzleReplay\Tests;
 
 use Holgerk\GuzzleReplay\Record;
-use Holgerk\GuzzleReplay\Recorder;
 use Holgerk\GuzzleReplay\Recording;
 use Holgerk\GuzzleReplay\RequestModel;
 use Holgerk\GuzzleReplay\ResponseModel;
@@ -52,7 +51,7 @@ class RecordingTest extends TestCase
             . '| - Request ' . "\n"
             . '|     method: POST' . "\n"
             . '|     uri: /request-something' . "\n"
-            . '|     headers: Array' . "\n"
+            . '|     headers: []' . "\n"
             . '|     body: ' . "\n"
             . '|     version: ' . "\n"
             . '| ' . "\n"
@@ -66,7 +65,7 @@ class RecordingTest extends TestCase
             . '| -    uri: /request-different' . "\n"
             . '| +    method: POST' . "\n"
             . '| +    uri: /request-something' . "\n"
-            . '|      headers: Array' . "\n"
+            . '|      headers: []' . "\n"
             . '|      body: ' . "\n"
             . '|      version:' . "\n"
             . '| ' . "\n"
@@ -75,14 +74,14 @@ class RecordingTest extends TestCase
             . '| - Request ' . "\n"
             . '|     method: GET' . "\n"
             . '|     uri: /request-different' . "\n"
-            . '|     headers: Array' . "\n"
+            . '|     headers: []' . "\n"
             . '|     body: ' . "\n"
             . '|     version: ' . "\n"
             . '| ' . "\n"
             . '| - Request ' . "\n"
             . '|     method: PATCH' . "\n"
             . '|     uri: /request-different' . "\n"
-            . '|     headers: Array' . "\n"
+            . '|     headers: []' . "\n"
             . '|     body: ' . "\n"
             . '|     version: ' . "\n"
             . '| ',

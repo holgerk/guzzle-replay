@@ -52,11 +52,12 @@ final class RequestModel implements JsonSerializable
 
     public function __toString(): string
     {
+        $headers = json_encode($this->headers);
         return <<<EOS
         Request 
             method: $this->method
             uri: $this->uri
-            headers: $this->headers
+            headers: $headers
             body: $this->body
             version: $this->version
         EOS;
