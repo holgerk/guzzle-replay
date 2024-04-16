@@ -1,24 +1,25 @@
 <?php
+declare(strict_types=1);
 
 namespace Holgerk\GuzzleReplay;
 
-use GuzzleHttp\Psr7\Response;
 use ReflectionClass;
 
-class Recorder
+class Recorder implements RecorderInterface
 {
     private ?Recording $recording;
     private ?string $callerClass;
     private ?string $callerMethod;
 
-    public function startRecord(): void
+    public function startRecord(): Recording
     {
         $this->recording = new Recording();
         $this->findCallingTestMethodAndClass();
         register_shutdown_function([$this, 'writeRecording']);
+        return $this->recording;
     }
 
-    public function startReplay(): void
+    public function startReplay(): Recording
     {
         $this->findCallingTestMethodAndClass();
         $class = new ReflectionClass($this->callerClass);
@@ -26,16 +27,7 @@ class Recorder
         $this->recording = (!$hasMethod)
             ? new Recording()
             : call_user_func($this->callerClass . '::' . $this->getMethodWithRecording());
-    }
-
-    public function addRecord(Record $record): void
-    {
-        $this->recording->addRecord($record);
-    }
-
-    public function findResponse(RequestModel $requestModel): Response
-    {
-        return $this->recording->findResponse($requestModel);
+        return $this->recording;
     }
 
     public function writeRecording(): void
@@ -82,7 +74,7 @@ class Recorder
             }
         EOS;
         $linesToInsert = explode("\n", $methodString);
-        $linesToInsert = array_map(fn ($line) => $line . "\n", $linesToInsert);
+        $linesToInsert = array_map(fn($line) => $line . "\n", $linesToInsert);
         // remove lines
         array_splice(
             $lines,

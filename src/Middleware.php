@@ -1,24 +1,30 @@
 <?php
+declare(strict_types=1);
 
 namespace Holgerk\GuzzleReplay;
 
 use GuzzleHttp\Promise\FulfilledPromise;
-use GuzzleHttp\Psr7\Response;
 use Psr\Http\Message\RequestInterface;
 use Psr\Http\Message\ResponseInterface;
 
 final class Middleware
 {
-    private Recorder $recorder;
+    private RecorderInterface $recorder;
+    private Recording $recording;
+    private mixed $requestNormalizer;
 
-    public static function create(Mode $mode, ?Recorder $recorder = null): self
+    public static function create(Mode $mode, ?Options $options = null): self
     {
         $self = new self($mode);
-        $self->recorder ??= new Recorder();
+
+        $options ??= Options::create();
+        $self->recorder = $options->recorder;
+        $self->requestNormalizer = $options->requestNormalizer;
+
         if ($mode === Mode::Replay) {
-            $self->recorder->startReplay();
+            $self->recording = $self->recorder->startReplay();
         } else {
-            $self->recorder->startRecord();
+            $self->recording = $self->recorder->startRecord();
         }
         return $self;
     }
@@ -31,22 +37,25 @@ final class Middleware
     {
         return function (RequestInterface $request, array $options) use ($next) {
             $requestModel = RequestModel::fromRequest($request);
+
+            ($this->requestNormalizer)($requestModel);
+
             if ($this->mode === Mode::Replay) {
                 return new FulfilledPromise(
-                    $this->recorder->findResponse($requestModel)
+                    $this->recording->findResponse($requestModel)
                 );
             }
             return $next($request, $options)->then(
                 function (ResponseInterface $response) use ($requestModel) {
                     $responseModel = ResponseModel::fromResponse($response);
-                    $this->recorder->addRecord(new Record($requestModel, $responseModel));
+                    $this->recording->addRecord(new Record($requestModel, $responseModel));
                     return $response;
                 }
             );
         };
     }
 
-    public function writeRecording()
+    public function writeRecording(): void
     {
         $this->recorder->writeRecording();
     }

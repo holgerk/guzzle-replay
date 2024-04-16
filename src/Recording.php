@@ -1,4 +1,5 @@
 <?php
+declare(strict_types=1);
 
 namespace Holgerk\GuzzleReplay;
 
@@ -93,34 +94,34 @@ final class Recording implements JsonSerializable
         $differenceByRecord = [];
         foreach ($this->records as $record) {
             $difference = 0;
-            if ($requestModel->getMethod() != $record->requestModel->getMethod()) {
+            if ($requestModel->method != $record->requestModel->method) {
                 $difference += levenshtein(
-                    $requestModel->getMethod(),
-                    $record->requestModel->getMethod()
+                    $requestModel->method,
+                    $record->requestModel->method
                 );
             }
-            if ((string)$requestModel->getUri() != (string)$record->requestModel->getUri()) {
+            if ((string)$requestModel->uri != (string)$record->requestModel->uri) {
                 $difference += levenshtein(
-                    (string)$requestModel->getUri(),
-                    (string)$record->requestModel->getUri()
+                    (string)$requestModel->uri,
+                    (string)$record->requestModel->uri
                 );
             }
-            if ($requestModel->getHeaders() != $record->requestModel->getHeaders()) {
+            if ($requestModel->headers != $record->requestModel->headers) {
                 $difference += levenshtein(
-                    json_encode($requestModel->getHeaders()),
-                    json_encode($record->requestModel->getHeaders())
+                    json_encode($requestModel->headers),
+                    json_encode($record->requestModel->headers)
                 );
             }
-            if ($requestModel->getBody() != $record->requestModel->getBody()) {
+            if ($requestModel->body != $record->requestModel->body) {
                 $difference += levenshtein(
-                    $requestModel->getBody(),
-                    $record->requestModel->getBody()
+                    $requestModel->body,
+                    $record->requestModel->body
                 );
             }
-            if ($requestModel->getVersion() != $record->requestModel->getVersion()) {
+            if ($requestModel->version != $record->requestModel->version) {
                 $difference += levenshtein(
-                    $requestModel->getVersion(),
-                    $record->requestModel->getVersion()
+                    $requestModel->version,
+                    $record->requestModel->version
                 );
             }
             $differenceByRecord[spl_object_id($record)] = $difference;
@@ -130,5 +131,10 @@ final class Recording implements JsonSerializable
             $differenceByRecord[spl_object_id($a)] <=> $differenceByRecord[spl_object_id($b)]
         );
         return $sortedRecords;
+    }
+
+    public function getRecords(): array
+    {
+        return $this->records;
     }
 }

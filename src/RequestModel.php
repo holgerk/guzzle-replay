@@ -1,26 +1,25 @@
 <?php
+declare(strict_types=1);
 
 namespace Holgerk\GuzzleReplay;
 
-use GuzzleHttp\Psr7\Uri;
 use JsonSerializable;
 use Psr\Http\Message\RequestInterface;
-use Psr\Http\Message\UriInterface;
 
 final class RequestModel implements JsonSerializable
 {
-    private string $method;
-    private UriInterface $uri;
+    public string $method;
+    public string $uri;
     /** @var string[][] */
-    private array $headers;
-    private string $body;
-    private string $version;
+    public array $headers;
+    public string $body;
+    public string $version;
 
     public static function fromRequest(RequestInterface $request): self
     {
         $self = new self();
         $self->method = $request->getMethod();
-        $self->uri = $request->getUri();
+        $self->uri = (string) $request->getUri();
         $self->headers = $request->getHeaders();
         $self->body = $request->getBody()->getContents();
         $self->version = $request->getProtocolVersion();
@@ -32,7 +31,7 @@ final class RequestModel implements JsonSerializable
     {
         $self = new self();
         $self->method = $data['method'];
-        $self->uri = new Uri($data['uri']);
+        $self->uri = $data['uri'];
         $self->headers = $data['headers'];
         $self->body = $data['body'];
         $self->version = $data['version'];
@@ -43,7 +42,7 @@ final class RequestModel implements JsonSerializable
     {
         return [
             'method' => $this->method,
-            'uri' => (string) $this->uri,
+            'uri' => $this->uri,
             'headers' => $this->headers,
             'body' => $this->body,
             'version' => $this->version,
@@ -61,30 +60,5 @@ final class RequestModel implements JsonSerializable
             body: $this->body
             version: $this->version
         EOS;
-    }
-
-    public function getMethod(): string
-    {
-        return $this->method;
-    }
-
-    public function getUri(): UriInterface
-    {
-        return $this->uri;
-    }
-
-    public function getHeaders(): array
-    {
-        return $this->headers;
-    }
-
-    public function getBody(): string
-    {
-        return $this->body;
-    }
-
-    public function getVersion(): string
-    {
-        return $this->version;
     }
 }

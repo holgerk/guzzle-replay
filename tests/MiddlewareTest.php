@@ -4,15 +4,17 @@ namespace Holgerk\GuzzleReplay\Tests;
 
 use GuzzleHttp\Client;
 use GuzzleHttp\HandlerStack;
+use GuzzleHttp\Psr7\Uri;
 use Holgerk\GuzzleReplay\Middleware;
 use Holgerk\GuzzleReplay\Mode;
+use Holgerk\GuzzleReplay\Options;
+use Holgerk\GuzzleReplay\RequestModel;
 use PHPUnit\Framework\Attributes\CoversClass;
-use PHPUnit\Framework\Attributes\DataProvider;
-use PHPUnit\Framework\Attributes\Test;
 use PHPUnit\Framework\TestCase;
 use RuntimeException;
 use Symfony\Component\Process\Process;
 use Throwable;
+use function Holgerk\AssertGolden\assertGolden;
 
 #[CoversClass(Middleware::class)]
 class MiddlewareTest extends TestCase
@@ -75,7 +77,31 @@ class MiddlewareTest extends TestCase
         $data = json_decode($response->getBody()->getContents());
         // normally https://httpbin.org/uuid would answer with a new uuid, but we use
         // our recording and this will have a fixed value
-        self::assertEquals('c12f2b32-f51c-4241-83a8-c7d92115a4a8', $data->uuid);
+        self::assertEquals('8c311aac-b8ee-4227-bb44-c569cad14605', $data->uuid);
+    }
+
+    public function testRequestNormalizer(): void
+    {
+        $recorder = new TestRecorder();
+
+        $stack = HandlerStack::create();
+        $middleware = Middleware::create(
+            Mode::Record,
+            Options::create()
+                ->setRequestNormalizer(function (RequestModel $requestModel) {
+                    $requestModel->uri = str_replace('localhost', 'host', $requestModel->uri);
+                })
+                ->setRecorder($recorder)
+        );
+        $stack->push($middleware);
+        $client = new Client(['handler' => $stack]);
+
+        $client->get('http://localhost:8000/?queryParam=42');
+
+        $records = $recorder->getRecording()->getRecords();
+        self::assertCount(1, $records);
+        // localhost is normalized to host
+        assertGolden('http://host:8000/?queryParam=42', $records[0]->requestModel->uri);
     }
 
     public static function guzzleRecording_testReplay(): \Holgerk\GuzzleReplay\Recording
@@ -104,7 +130,7 @@ class MiddlewareTest extends TestCase
                             "status": 200,
                             "headers": {
                                 "Date": [
-                                    "Sat, 13 Apr 2024 20:09:52 GMT"
+                                    "Tue, 16 Apr 2024 14:40:24 GMT"
                                 ],
                                 "Content-Type": [
                                     "application\/json"
@@ -125,7 +151,7 @@ class MiddlewareTest extends TestCase
                                     "true"
                                 ]
                             },
-                            "body": "{\n  \"uuid\": \"c12f2b32-f51c-4241-83a8-c7d92115a4a8\"\n}\n",
+                            "body": "{\n  \"uuid\": \"8c311aac-b8ee-4227-bb44-c569cad14605\"\n}\n",
                             "version": "1.1",
                             "reason": "OK"
                         }

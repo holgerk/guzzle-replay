@@ -4,7 +4,7 @@ Record guzzle requests and have them replayed during next runs.
 
 ### TODOS
 
-- Add a possibility to normalize recorded requests
+- Document recorded request normalisation
   - used to mask sensitive data
   - normalize host names between different environments (staging, production, etc.)
 - Add a possibility to normalize recorded responses
