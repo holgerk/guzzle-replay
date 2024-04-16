@@ -12,7 +12,6 @@ use function Holgerk\AssertGolden\assertGolden;
 
 class RecordingTest extends TestCase
 {
-
     public function testFindResponse(): void
     {
         $recording = new Recording();
@@ -24,7 +23,7 @@ class RecordingTest extends TestCase
         $this->assertEquals(404, $response->getStatusCode());
     }
 
-    public function testNotFindResponse(): void
+    public function testNoReplayFoundException(): void
     {
         $recording = new Recording();
         $recording->addRecord(new Record(
@@ -87,6 +86,17 @@ class RecordingTest extends TestCase
             . '| ',
             $message
         );
+    }
+
+    public function testNormalizeRequest(): void
+    {
+        $recording = new Recording();
+        $recording->addRecord(new Record(
+            $this->makeRequest(),
+            $this->makeResponse(['status' => 404])
+        ));
+        $response = $recording->findResponse($this->makeRequest());
+        $this->assertEquals(404, $response->getStatusCode());
     }
 
 

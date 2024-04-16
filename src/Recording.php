@@ -33,7 +33,13 @@ final class Recording implements JsonSerializable
 
     public function findResponse(RequestModel $requestModel): Response
     {
-        // TODO throw if empty($this->records)
+        if (empty($this->records)) {
+            throw new NoRecordingExistsException(
+                "\n| No records were found.\n"
+                . "| Maybe you forgot to record.\n"
+                . "| -> Middleware::create(Mode::Record).\n"
+            );
+        }
         // TODO throw if record already used
 
         foreach ($this->records as $record) {
@@ -42,8 +48,48 @@ final class Recording implements JsonSerializable
             }
         }
 
-        // no matching response found, create a helpful exception
+        $this->throwNoReplayFoundException($requestModel);
+    }
 
+    private function throwNoReplayFoundException(RequestModel $requestModel): void
+    {
+        // no matching response found, create a helpful exception
+        $sortedRecords = $this->sortRecordsByDistanceToRequest($requestModel);
+
+        $builder = new UnifiedDiffOutputBuilder(
+            "--- Expected\n+++ Actual\n",
+            false
+        );
+
+        $differ = new Differ($builder);
+        $diff = trim($differ->diff((string)$sortedRecords[0]->requestModel, (string)$requestModel));
+
+        $message = <<<EOS
+
+        No replay found for this request:
+        ---------------------------------
+        - $requestModel
+        
+        Diff to best matching expected request:
+        ---------------------------------------
+        $diff
+
+        All expected requests (sorted by difference):
+        ---------------------------------------------
+        EOS;
+        foreach ($sortedRecords as $record) {
+            $message .= <<<EOS
+
+            - $record->requestModel
+            
+            EOS;
+        }
+        $message = implode("\n| ", explode("\n", $message));
+        throw new NoReplayFoundException($message);
+    }
+
+    private function sortRecordsByDistanceToRequest(RequestModel $requestModel): array
+    {
         $differenceByRecord = [];
         foreach ($this->records as $record) {
             $difference = 0;
@@ -53,10 +99,10 @@ final class Recording implements JsonSerializable
                     $record->requestModel->getMethod()
                 );
             }
-            if ((string) $requestModel->getUri() != (string) $record->requestModel->getUri()) {
+            if ((string)$requestModel->getUri() != (string)$record->requestModel->getUri()) {
                 $difference += levenshtein(
-                    (string) $requestModel->getUri(),
-                    (string) $record->requestModel->getUri()
+                    (string)$requestModel->getUri(),
+                    (string)$record->requestModel->getUri()
                 );
             }
             if ($requestModel->getHeaders() != $record->requestModel->getHeaders()) {
@@ -83,36 +129,6 @@ final class Recording implements JsonSerializable
         usort($sortedRecords, fn(Record $a, Record $b) =>
             $differenceByRecord[spl_object_id($a)] <=> $differenceByRecord[spl_object_id($b)]
         );
-
-        $builder = new UnifiedDiffOutputBuilder(
-            "--- Expected\n+++ Actual\n",
-            false
-        );
-
-        $differ = new Differ($builder);
-        $diff = trim($differ->diff((string) $sortedRecords[0]->requestModel, (string) $requestModel));
-
-        $message = <<<EOS
-
-        No replay found for this request:
-        ---------------------------------
-        - $requestModel
-        
-        Diff to best matching expected request:
-        ---------------------------------------
-        $diff
-
-        All expected requests (sorted by difference):
-        ---------------------------------------------
-        EOS;
-        foreach ($sortedRecords as $record) {
-            $message .= <<<EOS
-
-            - $record->requestModel
-            
-            EOS;
-        }
-        $message = implode("\n| ", explode("\n", $message));
-        throw new NoReplayFoundException($message);
+        return $sortedRecords;
     }
 }

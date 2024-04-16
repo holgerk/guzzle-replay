@@ -4,7 +4,6 @@ Record guzzle requests and have them replayed during next runs.
 
 ### TODOS
 
-- Make a good replay not exception description
 - Add a possibility to normalize recorded requests
   - used to mask sensitive data
   - normalize host names between different environments (staging, production, etc.)

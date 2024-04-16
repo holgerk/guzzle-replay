@@ -19,7 +19,7 @@ class UpdateRecording {
         return $middleware;
     }
 
-    public static function executeTestGuzzleRecording(): \Holgerk\GuzzleReplay\Recording
+    public static function guzzleRecording_executeTest(): \Holgerk\GuzzleReplay\Recording
     {
 
     }

@@ -64,8 +64,7 @@ class MiddlewareTest extends TestCase
         );
     }
 
-    #[Test]
-    public function replay_test(): void
+    public function testReplay(): void
     {
         $stack = HandlerStack::create();
         $middleware = Middleware::create(Mode::Replay);
@@ -79,7 +78,7 @@ class MiddlewareTest extends TestCase
         self::assertEquals('c12f2b32-f51c-4241-83a8-c7d92115a4a8', $data->uuid);
     }
 
-    public static function replay_testGuzzleRecording(): \Holgerk\GuzzleReplay\Recording
+    public static function guzzleRecording_testReplay(): \Holgerk\GuzzleReplay\Recording
     {
         // GENERATED - DO NOT EDIT
         return \Holgerk\GuzzleReplay\Recording::fromJson(json_decode(

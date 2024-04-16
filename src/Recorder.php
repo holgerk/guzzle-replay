@@ -2,6 +2,7 @@
 
 namespace Holgerk\GuzzleReplay;
 
+use GuzzleHttp\Psr7\Response;
 use ReflectionClass;
 
 class Recorder
@@ -10,22 +11,31 @@ class Recorder
     private ?string $callerClass;
     private ?string $callerMethod;
 
-    public function record(Recording $recording): void
+    public function startRecord(): void
     {
-        $this->recording = $recording;
-        register_shutdown_function([$this, 'writeRecording']);
+        $this->recording = new Recording();
         $this->findCallingTestMethodAndClass();
+        register_shutdown_function([$this, 'writeRecording']);
     }
 
-    public function replay(): Recording
+    public function startReplay(): void
     {
         $this->findCallingTestMethodAndClass();
         $class = new ReflectionClass($this->callerClass);
         $hasMethod = $class->hasMethod($this->getMethodWithRecording());
-        if (!$hasMethod) {
-            return new Recording();
-        }
-        return call_user_func($this->callerClass . '::' . $this->getMethodWithRecording());
+        $this->recording = (!$hasMethod)
+            ? new Recording()
+            : call_user_func($this->callerClass . '::' . $this->getMethodWithRecording());
+    }
+
+    public function addRecord(Record $record): void
+    {
+        $this->recording->addRecord($record);
+    }
+
+    public function findResponse(RequestModel $requestModel): Response
+    {
+        return $this->recording->findResponse($requestModel);
     }
 
     public function writeRecording(): void
@@ -102,6 +112,6 @@ class Recorder
 
     private function getMethodWithRecording(): string
     {
-        return $this->callerMethod . 'GuzzleRecording';
+        return 'guzzleRecording_' . $this->callerMethod;
     }
 }
