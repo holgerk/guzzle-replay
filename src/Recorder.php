@@ -89,6 +89,7 @@ class Recorder implements RecorderInterface
         $stackItems = debug_backtrace(DEBUG_BACKTRACE_IGNORE_ARGS);
         foreach ($stackItems as $index => $stackItem) {
             if ($stackItem['class'] === Middleware::class) {
+                assert(isset($stackItems[$index + 1]['class']));
                 $this->callerClass = $stackItems[$index + 1]['class'];
                 $this->callerMethod = $stackItems[$index + 1]['function'];
                 break;
@@ -100,6 +101,7 @@ class Recorder implements RecorderInterface
 
     private function getMethodWithRecording(): string
     {
+        assert($this->callerMethod !== null);
         return 'guzzleRecording_' . $this->callerMethod;
     }
 }

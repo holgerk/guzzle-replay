@@ -31,6 +31,7 @@ final class Recording
         ];
     }
 
+    /** @psalm-suppress InvalidReturnType */
     public function findResponse(RequestModel $requestModel): Response
     {
         if (empty($this->records)) {
@@ -69,7 +70,7 @@ final class Recording
         No replay found for this request:
         ---------------------------------
         - $requestModel
-        
+
         Diff to best matching expected request:
         ---------------------------------------
         $diff
@@ -81,7 +82,7 @@ final class Recording
             $message .= <<<EOS
 
             - $record->requestModel
-            
+
             EOS;
         }
         $message = implode("\n| ", explode("\n", $message));
@@ -99,10 +100,10 @@ final class Recording
                     $record->requestModel->method
                 );
             }
-            if ((string)$requestModel->uri != (string)$record->requestModel->uri) {
+            if ($requestModel->uri != $record->requestModel->uri) {
                 $difference += levenshtein(
-                    (string)$requestModel->uri,
-                    (string)$record->requestModel->uri
+                    $requestModel->uri,
+                    $record->requestModel->uri
                 );
             }
             if ($requestModel->headers != $record->requestModel->headers) {

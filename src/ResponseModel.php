@@ -8,21 +8,24 @@ use Psr\Http\Message\ResponseInterface;
 
 final class ResponseModel
 {
-    public int $status;
-    /** @var string[][] */
-    public array $headers;
-    public mixed $body;
-    public string $version;
-    public string $reason;
+    private function __construct(
+        public int $status,
+        /** @var string[][] */
+        public array $headers,
+        public mixed $body,
+        public string $version,
+        public string $reason,
+    ) {}
 
     public static function fromResponse(ResponseInterface $response): self
     {
-        $self = new self();
-        $self->status = $response->getStatusCode();
-        $self->headers = $response->getHeaders();
-        $self->body = $response->getBody()->getContents();
-        $self->version = $response->getProtocolVersion();
-        $self->reason = $response->getReasonPhrase();
+        $self = new self(
+            $response->getStatusCode(),
+            $response->getHeaders(),
+            $response->getBody()->getContents(),
+            $response->getProtocolVersion(),
+            $response->getReasonPhrase(),
+        );
 
         $response->getBody()->rewind();
 
@@ -32,13 +35,13 @@ final class ResponseModel
     /** @param array{status: int, headers: array, body: string, version: string, reason: string} $data */
     public static function fromArray(array $data): self
     {
-        $self = new self();
-        $self->status = $data['status'];
-        $self->headers = $data['headers'];
-        $self->body = $data['body'];
-        $self->version = $data['version'];
-        $self->reason = $data['reason'];
-        return $self;
+        return new self(
+            $data['status'],
+            $data['headers'],
+            $data['body'],
+            $data['version'],
+            $data['reason'],
+        );
     }
 
     public function toArray(): array

@@ -7,34 +7,36 @@ use Psr\Http\Message\RequestInterface;
 
 final class RequestModel
 {
-    public string $method;
-    public string $uri;
-    /** @var string[][] */
-    public array $headers;
-    public string $body;
-    public string $version;
+    public function __construct(
+        public string $method,
+        public string $uri,
+        /** @var string[][] */
+        public array $headers,
+        public string $body,
+        public string $version,
+    ) {}
 
     public static function fromRequest(RequestInterface $request): self
     {
-        $self = new self();
-        $self->method = $request->getMethod();
-        $self->uri = (string) $request->getUri();
-        $self->headers = $request->getHeaders();
-        $self->body = $request->getBody()->getContents();
-        $self->version = $request->getProtocolVersion();
-        return $self;
+        return new self(
+            $request->getMethod(),
+            (string) $request->getUri(),
+            $request->getHeaders(),
+            $request->getBody()->getContents(),
+            $request->getProtocolVersion(),
+        );
     }
 
     /** @param array{method: string, uri: string, headers: array, body: string, version: string} $data */
     public static function fromArray(array $data): self
     {
-        $self = new self();
-        $self->method = $data['method'];
-        $self->uri = $data['uri'];
-        $self->headers = $data['headers'];
-        $self->body = $data['body'];
-        $self->version = $data['version'];
-        return $self;
+        return new self(
+            $data['method'],
+            $data['uri'],
+            $data['headers'],
+            $data['body'],
+            $data['version'],
+        );
     }
 
     public function toArray(): array

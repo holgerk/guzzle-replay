@@ -14,7 +14,7 @@ final class Options
     {
         $self = new self();
         $self->recorder = new Recorder();
-        $self->requestTransformer = function (RequestModel $requestModel) { /* noop */ };
+        $self->requestTransformer = function (RequestModel $_) { /* noop */ };
         return $self;
     }
 
