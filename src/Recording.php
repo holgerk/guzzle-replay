@@ -4,19 +4,18 @@ declare(strict_types=1);
 namespace Holgerk\GuzzleReplay;
 
 use GuzzleHttp\Psr7\Response;
-use JsonSerializable;
 use SebastianBergmann\Diff\Differ;
 use SebastianBergmann\Diff\Output\UnifiedDiffOutputBuilder;
 
-final class Recording implements JsonSerializable
+final class Recording
 {
     /** @var Record[] */
     private array $records = [];
 
-    public static function fromJson(array $data): self
+    public static function fromArray(array $data): self
     {
         $self = new self();
-        $self->records = array_map(fn (array $record) => Record::fromJson($record), $data['records']);
+        $self->records = array_map(fn (array $record) => Record::fromArray($record), $data['records']);
         return $self;
     }
 
@@ -25,10 +24,10 @@ final class Recording implements JsonSerializable
         $this->records[] = $record;
     }
 
-    public function jsonSerialize(): array
+    public function toArray(): array
     {
         return [
-            'records' => $this->records,
+            'records' => array_map(fn (Record $r) => $r->toArray(), $this->records),
         ];
     }
 

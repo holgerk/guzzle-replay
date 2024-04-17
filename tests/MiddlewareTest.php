@@ -9,10 +9,12 @@ use Holgerk\GuzzleReplay\Middleware;
 use Holgerk\GuzzleReplay\Mode;
 use Holgerk\GuzzleReplay\Options;
 use Holgerk\GuzzleReplay\RequestModel;
+use Holgerk\GuzzleReplay\ResponseModel;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
 use RuntimeException;
 use Symfony\Component\Process\Process;
+use Symfony\Component\VarExporter\VarExporter;
 use Throwable;
 use function Holgerk\AssertGolden\assertGolden;
 
@@ -77,10 +79,10 @@ class MiddlewareTest extends TestCase
         $data = json_decode($response->getBody()->getContents());
         // normally https://httpbin.org/uuid would answer with a new uuid, but we use
         // our recording and this will have a fixed value
-        self::assertEquals('8c311aac-b8ee-4227-bb44-c569cad14605', $data->uuid);
+        self::assertEquals('254c7adc-456a-4f6d-8255-dc752396b82b', $data->uuid);
     }
 
-    public function testRequestNormalizer(): void
+    public function testRequestTransformer(): void
     {
         $recorder = new TestRecorder();
 
@@ -88,7 +90,7 @@ class MiddlewareTest extends TestCase
         $middleware = Middleware::create(
             Mode::Record,
             Options::create()
-                ->setRequestNormalizer(function (RequestModel $requestModel) {
+                ->setRequestTransformer(function (RequestModel $requestModel) {
                     $requestModel->uri = str_replace('localhost', 'host', $requestModel->uri);
                 })
                 ->setRecorder($recorder)
@@ -107,61 +109,58 @@ class MiddlewareTest extends TestCase
     public static function guzzleRecording_testReplay(): \Holgerk\GuzzleReplay\Recording
     {
         // GENERATED - DO NOT EDIT
-        return \Holgerk\GuzzleReplay\Recording::fromJson(json_decode(
-            <<<'_JSON_'
-            {
-                "records": [
-                    {
-                        "requestModel": {
-                            "method": "GET",
-                            "uri": "https:\/\/httpbin.org\/uuid",
-                            "headers": {
-                                "User-Agent": [
-                                    "GuzzleHttp\/7"
+        return \Holgerk\GuzzleReplay\Recording::fromArray(
+            [
+                'records' => [
+                    [
+                        'requestModel' => [
+                            'method' => 'GET',
+                            'uri' => 'https://httpbin.org/uuid',
+                            'headers' => [
+                                'User-Agent' => [
+                                    'GuzzleHttp/7',
                                 ],
-                                "Host": [
-                                    "httpbin.org"
-                                ]
-                            },
-                            "body": "",
-                            "version": "1.1"
-                        },
-                        "responseModel": {
-                            "status": 200,
-                            "headers": {
-                                "Date": [
-                                    "Tue, 16 Apr 2024 14:40:24 GMT"
+                                'Host' => [
+                                    'httpbin.org',
                                 ],
-                                "Content-Type": [
-                                    "application\/json"
+                            ],
+                            'body' => '',
+                            'version' => '1.1',
+                        ],
+                        'responseModel' => [
+                            'status' => 200,
+                            'headers' => [
+                                'Date' => [
+                                    'Wed, 17 Apr 2024 06:20:24 GMT',
                                 ],
-                                "Content-Length": [
-                                    "53"
+                                'Content-Type' => [
+                                    'application/json',
                                 ],
-                                "Connection": [
-                                    "keep-alive"
+                                'Content-Length' => [
+                                    '53',
                                 ],
-                                "Server": [
-                                    "gunicorn\/19.9.0"
+                                'Connection' => [
+                                    'keep-alive',
                                 ],
-                                "Access-Control-Allow-Origin": [
-                                    "*"
+                                'Server' => [
+                                    'gunicorn/19.9.0',
                                 ],
-                                "Access-Control-Allow-Credentials": [
-                                    "true"
-                                ]
-                            },
-                            "body": "{\n  \"uuid\": \"8c311aac-b8ee-4227-bb44-c569cad14605\"\n}\n",
-                            "version": "1.1",
-                            "reason": "OK"
-                        }
-                    }
-                ]
-            }
-            _JSON_,
-            true,
-            512,
-            JSON_THROW_ON_ERROR
-        ));
+                                'Access-Control-Allow-Origin' => [
+                                    '*',
+                                ],
+                                'Access-Control-Allow-Credentials' => [
+                                    'true',
+                                ],
+                            ],
+                            'body' => '{'."\n"
+                                .'  "uuid": "254c7adc-456a-4f6d-8255-dc752396b82b"'."\n"
+                                .'}'."\n",
+                            'version' => '1.1',
+                            'reason' => 'OK',
+                        ],
+                    ],
+                ],
+            ]
+        );
     }
 }

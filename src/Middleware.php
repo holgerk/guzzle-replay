@@ -9,22 +9,19 @@ use Psr\Http\Message\ResponseInterface;
 
 final class Middleware
 {
-    private RecorderInterface $recorder;
     private Recording $recording;
-    private mixed $requestNormalizer;
+    private Options $options;
 
     public static function create(Mode $mode, ?Options $options = null): self
     {
         $self = new self($mode);
 
-        $options ??= Options::create();
-        $self->recorder = $options->recorder;
-        $self->requestNormalizer = $options->requestNormalizer;
+        $self->options = $options ?? Options::create();
 
         if ($mode === Mode::Replay) {
-            $self->recording = $self->recorder->startReplay();
+            $self->recording = $self->options->recorder->startReplay();
         } else {
-            $self->recording = $self->recorder->startRecord();
+            $self->recording = $self->options->recorder->startRecord();
         }
         return $self;
     }
@@ -38,7 +35,7 @@ final class Middleware
         return function (RequestInterface $request, array $options) use ($next) {
             $requestModel = RequestModel::fromRequest($request);
 
-            ($this->requestNormalizer)($requestModel);
+            ($this->options->requestTransformer)($requestModel);
 
             if ($this->mode === Mode::Replay) {
                 return new FulfilledPromise(
@@ -57,7 +54,7 @@ final class Middleware
 
     public function writeRecording(): void
     {
-        $this->recorder->writeRecording();
+        $this->options->recorder->writeRecording();
     }
 
 

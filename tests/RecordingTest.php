@@ -106,7 +106,7 @@ class RecordingTest extends TestCase
     /** @param array{method?: string, uri?: string, headers?: array, body?: string, version?: string} $data */
     private function makeRequest(array $data = []): RequestModel
     {
-        return RequestModel::fromJson([
+        return RequestModel::fromArray([
             'method' => $data['method'] ?? 'GET',
             'uri' => $data['uri'] ?? '',
             'headers' => $data['headers'] ?? [],
@@ -118,7 +118,7 @@ class RecordingTest extends TestCase
     /** @param array{status?: int, headers?: array, body?: string, version?: string, reason?: string} $data */
     private function makeResponse(array $data = []): ResponseModel
     {
-        return ResponseModel::fromJson([
+        return ResponseModel::fromArray([
             'status' => $data['status'] ?? 200,
             'headers' => $data['headers'] ?? [],
             'body' => $data['body'] ?? '',

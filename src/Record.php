@@ -3,28 +3,26 @@ declare(strict_types=1);
 
 namespace Holgerk\GuzzleReplay;
 
-use JsonSerializable;
-
-final class Record implements JsonSerializable
+final class Record
 {
     public function __construct(
         public RequestModel $requestModel,
         public ResponseModel $responseModel,
     ) {}
 
-    public static function fromJson(array $record): self
+    public static function fromArray(array $record): self
     {
         return new self(
-            RequestModel::fromJson($record['requestModel']),
-            ResponseModel::fromJson($record['responseModel']),
+            RequestModel::fromArray($record['requestModel']),
+            ResponseModel::fromArray($record['responseModel']),
         );
     }
 
-    public function jsonSerialize(): array
+    public function toArray(): array
     {
         return [
-            'requestModel' => $this->requestModel,
-            'responseModel' => $this->responseModel,
+            'requestModel' => $this->requestModel->toArray(),
+            'responseModel' => $this->responseModel->toArray(),
         ];
     }
 }

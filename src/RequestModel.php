@@ -3,10 +3,9 @@ declare(strict_types=1);
 
 namespace Holgerk\GuzzleReplay;
 
-use JsonSerializable;
 use Psr\Http\Message\RequestInterface;
 
-final class RequestModel implements JsonSerializable
+final class RequestModel
 {
     public string $method;
     public string $uri;
@@ -27,7 +26,7 @@ final class RequestModel implements JsonSerializable
     }
 
     /** @param array{method: string, uri: string, headers: array, body: string, version: string} $data */
-    public static function fromJson(array $data): self
+    public static function fromArray(array $data): self
     {
         $self = new self();
         $self->method = $data['method'];
@@ -38,7 +37,7 @@ final class RequestModel implements JsonSerializable
         return $self;
     }
 
-    public function jsonSerialize(): array
+    public function toArray(): array
     {
         return [
             'method' => $this->method,

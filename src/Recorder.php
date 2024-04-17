@@ -4,6 +4,7 @@ declare(strict_types=1);
 namespace Holgerk\GuzzleReplay;
 
 use ReflectionClass;
+use Symfony\Component\VarExporter\VarExporter;
 
 class Recorder implements RecorderInterface
 {
@@ -57,20 +58,15 @@ class Recorder implements RecorderInterface
             }
         }
         $recordingClass = Recording::class;
-        $recordingJson = json_encode($recording, JSON_PRETTY_PRINT);
-        $recordingJson = implode("\n            ", explode("\n", $recordingJson));
+        $recording = VarExporter::export($recording->toArray());
+        $recording = implode("\n            ", explode("\n", $recording));
         $methodString = <<<EOS
             public static function {$this->getMethodWithRecording()}(): \\$recordingClass
             {
                 // GENERATED - DO NOT EDIT
-                return \\$recordingClass::fromJson(json_decode(
-                    <<<'_JSON_'
-                    $recordingJson
-                    _JSON_,
-                    true,
-                    512,
-                    JSON_THROW_ON_ERROR
-                ));
+                return \\$recordingClass::fromArray(
+                    $recording
+                );
             }
         EOS;
         $linesToInsert = explode("\n", $methodString);

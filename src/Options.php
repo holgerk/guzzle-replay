@@ -8,13 +8,13 @@ final class Options
     public RecorderInterface $recorder;
 
     /** @var callable(RequestModel):void */
-    public mixed $requestNormalizer;
+    public mixed $requestTransformer;
 
     public static function create(): self
     {
         $self = new self();
         $self->recorder = new Recorder();
-        $self->requestNormalizer = function (RequestModel $requestModel) { /* noop */ };
+        $self->requestTransformer = function (RequestModel $requestModel) { /* noop */ };
         return $self;
     }
 
@@ -26,10 +26,11 @@ final class Options
         return $this;
     }
 
-    /** @param callable(RequestModel):void $requestNormalizer */
-    public function setRequestNormalizer(mixed $requestNormalizer): self
+    /** @param callable(RequestModel):void $requestTransformer */
+    public function setRequestTransformer(mixed $requestTransformer): self
     {
-        $this->requestNormalizer = $requestNormalizer;
+        $this->requestTransformer = $requestTransformer;
         return $this;
     }
+
 }
