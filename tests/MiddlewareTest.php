@@ -4,17 +4,14 @@ namespace Holgerk\GuzzleReplay\Tests;
 
 use GuzzleHttp\Client;
 use GuzzleHttp\HandlerStack;
-use GuzzleHttp\Psr7\Uri;
 use Holgerk\GuzzleReplay\Middleware;
 use Holgerk\GuzzleReplay\Mode;
 use Holgerk\GuzzleReplay\Options;
 use Holgerk\GuzzleReplay\RequestModel;
-use Holgerk\GuzzleReplay\ResponseModel;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
 use RuntimeException;
 use Symfony\Component\Process\Process;
-use Symfony\Component\VarExporter\VarExporter;
 use Throwable;
 use function Holgerk\AssertGolden\assertGolden;
 
