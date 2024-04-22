@@ -3,8 +3,10 @@ declare(strict_types=1);
 
 namespace Holgerk\GuzzleReplay;
 
-final class Options
+class Options
 {
+    public RecordName $recordName;
+
     public RecorderInterface $recorder;
 
     /** @var callable(RequestModel):void */
@@ -13,12 +15,22 @@ final class Options
     public static function create(): self
     {
         $self = new self();
+
+        // add defaults
+        $self->recordName = RecordName::inflect(3);
         $self->recorder = new Recorder();
         $self->requestTransformer = function (RequestModel $_) { /* noop */ };
+
         return $self;
     }
 
     private function __construct() {}
+
+    public function setRecordName(RecordName $recordName): self
+    {
+        $this->recordName = $recordName;
+        return $this;
+    }
 
     public function setRecorder(RecorderInterface $recorder): self
     {

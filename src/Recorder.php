@@ -9,25 +9,24 @@ use Symfony\Component\VarExporter\VarExporter;
 class Recorder implements RecorderInterface
 {
     private ?Recording $recording;
-    private ?string $callerClass;
-    private ?string $callerMethod;
+    private ?RecordName $recordName;
 
-    public function startRecord(): Recording
+    public function startRecord(RecordName $recordName): Recording
     {
         $this->recording = new Recording();
-        $this->findCallingTestMethodAndClass();
+        $this->recordName = $recordName;
         register_shutdown_function([$this, 'writeRecording']);
         return $this->recording;
     }
 
-    public function startReplay(): Recording
+    public function startReplay(RecordName $recordName): Recording
     {
-        $this->findCallingTestMethodAndClass();
-        $class = new ReflectionClass($this->callerClass);
-        $hasMethod = $class->hasMethod($this->getMethodWithRecording());
+        $this->recordName = $recordName;
+        $class = new ReflectionClass($this->recordName->getTestClassName());
+        $hasMethod = $class->hasMethod($this->recordName->getShortName());
         $this->recording = (!$hasMethod)
             ? new Recording()
-            : call_user_func($this->callerClass . '::' . $this->getMethodWithRecording());
+            : call_user_func($this->recordName->getTestClassName() . '::' . $this->recordName->getShortName());
         return $this->recording;
     }
 
@@ -39,13 +38,13 @@ class Recorder implements RecorderInterface
         $recording = $this->recording;
         $this->recording = null;
 
-        $class = new ReflectionClass($this->callerClass);
-        $hasMethod = $class->hasMethod($this->getMethodWithRecording());
+        $class = new ReflectionClass($this->recordName->getTestClassName());
+        $hasMethod = $class->hasMethod($this->recordName->getShortName());
         $lines = file($class->getFileName());
         $insertStartLine = null;
         $insertEndLine = null;
         if ($hasMethod) {
-            $method = $class->getMethod($this->getMethodWithRecording());
+            $method = $class->getMethod($this->recordName->getShortName());
             $insertStartLine = $method->getStartLine();
             $insertEndLine = $method->getEndLine();
         } else {
@@ -61,7 +60,7 @@ class Recorder implements RecorderInterface
         $recording = VarExporter::export($recording->toArray());
         $recording = implode("\n            ", explode("\n", $recording));
         $methodString = <<<EOS
-            public static function {$this->getMethodWithRecording()}(): \\$recordingClass
+            public static function {$this->recordName->getShortName()}(): \\$recordingClass
             {
                 // GENERATED - DO NOT EDIT
                 return \\$recordingClass::fromArray(
@@ -81,27 +80,4 @@ class Recorder implements RecorderInterface
         file_put_contents($class->getFileName(), implode('', $lines));
     }
 
-    private function findCallingTestMethodAndClass(): void
-    {
-        // find calling class and method
-        $this->callerClass = null;
-        $this->callerMethod = null;
-        $stackItems = debug_backtrace(DEBUG_BACKTRACE_IGNORE_ARGS);
-        foreach ($stackItems as $index => $stackItem) {
-            if ($stackItem['class'] === Middleware::class) {
-                assert(isset($stackItems[$index + 1]['class']));
-                $this->callerClass = $stackItems[$index + 1]['class'];
-                $this->callerMethod = $stackItems[$index + 1]['function'];
-                break;
-            }
-        }
-        assert($this->callerClass !== null);
-        assert($this->callerMethod !== null);
-    }
-
-    private function getMethodWithRecording(): string
-    {
-        assert($this->callerMethod !== null);
-        return 'guzzleRecording_' . $this->callerMethod;
-    }
 }

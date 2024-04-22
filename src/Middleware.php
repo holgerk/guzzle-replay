@@ -19,16 +19,14 @@ final class Middleware
         $self->options = $options ?? Options::create();
 
         if ($mode === Mode::Replay) {
-            $self->recording = $self->options->recorder->startReplay();
+            $self->recording = $self->options->recorder->startReplay($self->options->recordName);
         } else {
-            $self->recording = $self->options->recorder->startRecord();
+            $self->recording = $self->options->recorder->startRecord($self->options->recordName);
         }
         return $self;
     }
 
-    private function __construct(private readonly Mode $mode)
-    {
-    }
+    private function __construct(private readonly Mode $mode) {}
 
     public function __invoke(callable $next): callable
     {

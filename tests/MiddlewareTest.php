@@ -7,6 +7,7 @@ use GuzzleHttp\HandlerStack;
 use Holgerk\GuzzleReplay\Middleware;
 use Holgerk\GuzzleReplay\Mode;
 use Holgerk\GuzzleReplay\Options;
+use Holgerk\GuzzleReplay\RecordName;
 use Holgerk\GuzzleReplay\RequestModel;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
@@ -84,13 +85,11 @@ class MiddlewareTest extends TestCase
         $recorder = new TestRecorder();
 
         $stack = HandlerStack::create();
-        $middleware = Middleware::create(
-            Mode::Record,
-            Options::create()
-                ->setRequestTransformer(function (RequestModel $requestModel) {
-                    $requestModel->uri = str_replace('localhost', 'host', $requestModel->uri);
-                })
-                ->setRecorder($recorder)
+        $middleware = Middleware::create(Mode::Record, Options::create()
+            ->setRequestTransformer(function (RequestModel $requestModel) {
+                $requestModel->uri = str_replace('localhost', 'host', $requestModel->uri);
+            })
+            ->setRecorder($recorder)
         );
         $stack->push($middleware);
         $client = new Client(['handler' => $stack]);
@@ -101,6 +100,22 @@ class MiddlewareTest extends TestCase
         self::assertCount(1, $records);
         // localhost is normalized to host
         assertGolden('http://host:8000/?queryParam=42', $records[0]->requestModel->uri);
+    }
+
+    public function testCustomRecordName(): void
+    {
+        $stack = HandlerStack::create();
+        $middleware = Middleware::create(Mode::Replay, Options::create()
+            ->setRecordName(RecordName::make(__CLASS__, __FUNCTION__))
+        );
+        $stack->push($middleware);
+        $client = new Client(['handler' => $stack]);
+
+        $response = $client->get('https://httpbin.org/uuid');
+        $data = json_decode($response->getBody()->getContents());
+        // normally https://httpbin.org/uuid would answer with a new uuid, but we use
+        // our recording and this will have a fixed value
+        self::assertEquals('e418681e-9d38-4d69-b661-584a19d6861d', $data->uuid);
     }
 
     public static function guzzleRecording_testReplay(): \Holgerk\GuzzleReplay\Recording
@@ -151,6 +166,64 @@ class MiddlewareTest extends TestCase
                             ],
                             'body' => '{'."\n"
                                 .'  "uuid": "254c7adc-456a-4f6d-8255-dc752396b82b"'."\n"
+                                .'}'."\n",
+                            'version' => '1.1',
+                            'reason' => 'OK',
+                        ],
+                    ],
+                ],
+            ]
+        );
+    }
+
+    public static function guzzleRecording_testCustomRecordName(): \Holgerk\GuzzleReplay\Recording
+    {
+        // GENERATED - DO NOT EDIT
+        return \Holgerk\GuzzleReplay\Recording::fromArray(
+            [
+                'records' => [
+                    [
+                        'requestModel' => [
+                            'method' => 'GET',
+                            'uri' => 'https://httpbin.org/uuid',
+                            'headers' => [
+                                'User-Agent' => [
+                                    'GuzzleHttp/7',
+                                ],
+                                'Host' => [
+                                    'httpbin.org',
+                                ],
+                            ],
+                            'body' => '',
+                            'version' => '1.1',
+                        ],
+                        'responseModel' => [
+                            'status' => 200,
+                            'headers' => [
+                                'Date' => [
+                                    'Mon, 22 Apr 2024 20:54:22 GMT',
+                                ],
+                                'Content-Type' => [
+                                    'application/json',
+                                ],
+                                'Content-Length' => [
+                                    '53',
+                                ],
+                                'Connection' => [
+                                    'keep-alive',
+                                ],
+                                'Server' => [
+                                    'gunicorn/19.9.0',
+                                ],
+                                'Access-Control-Allow-Origin' => [
+                                    '*',
+                                ],
+                                'Access-Control-Allow-Credentials' => [
+                                    'true',
+                                ],
+                            ],
+                            'body' => '{'."\n"
+                                .'  "uuid": "e418681e-9d38-4d69-b661-584a19d6861d"'."\n"
                                 .'}'."\n",
                             'version' => '1.1',
                             'reason' => 'OK',

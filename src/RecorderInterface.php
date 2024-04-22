@@ -5,9 +5,9 @@ namespace Holgerk\GuzzleReplay;
 
 interface RecorderInterface
 {
-    public function startRecord(): Recording;
+    public function startRecord(RecordName $recordName): Recording;
 
-    public function startReplay(): Recording;
+    public function startReplay(RecordName $recordName): Recording;
 
     public function writeRecording(): void;
 }
