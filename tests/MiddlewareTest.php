@@ -118,6 +118,15 @@ class MiddlewareTest extends TestCase
         self::assertEquals('e418681e-9d38-4d69-b661-584a19d6861d', $data->uuid);
     }
 
+    public function testInject(): void
+    {
+        $client = new Client();
+        Middleware::inject($client, Mode::Replay);
+        $response = $client->get('https://httpbin.org/uuid');
+        $data = json_decode($response->getBody()->getContents());
+        self::assertEquals('b32f97f9-db0d-4614-ba1e-a777c02864c3', $data->uuid);
+    }
+
     public static function guzzleRecording_testReplay(): \Holgerk\GuzzleReplay\Recording
     {
         // GENERATED - DO NOT EDIT
@@ -233,4 +242,63 @@ class MiddlewareTest extends TestCase
             ]
         );
     }
+
+    public static function guzzleRecording_testInject(): \Holgerk\GuzzleReplay\Recording
+    {
+        // GENERATED - DO NOT EDIT
+        return \Holgerk\GuzzleReplay\Recording::fromArray(
+            [
+                'records' => [
+                    [
+                        'requestModel' => [
+                            'method' => 'GET',
+                            'uri' => 'https://httpbin.org/uuid',
+                            'headers' => [
+                                'User-Agent' => [
+                                    'GuzzleHttp/7',
+                                ],
+                                'Host' => [
+                                    'httpbin.org',
+                                ],
+                            ],
+                            'body' => '',
+                            'version' => '1.1',
+                        ],
+                        'responseModel' => [
+                            'status' => 200,
+                            'headers' => [
+                                'Date' => [
+                                    'Mon, 22 Apr 2024 21:36:39 GMT',
+                                ],
+                                'Content-Type' => [
+                                    'application/json',
+                                ],
+                                'Content-Length' => [
+                                    '53',
+                                ],
+                                'Connection' => [
+                                    'keep-alive',
+                                ],
+                                'Server' => [
+                                    'gunicorn/19.9.0',
+                                ],
+                                'Access-Control-Allow-Origin' => [
+                                    '*',
+                                ],
+                                'Access-Control-Allow-Credentials' => [
+                                    'true',
+                                ],
+                            ],
+                            'body' => '{'."\n"
+                                .'  "uuid": "b32f97f9-db0d-4614-ba1e-a777c02864c3"'."\n"
+                                .'}'."\n",
+                            'version' => '1.1',
+                            'reason' => 'OK',
+                        ],
+                    ],
+                ],
+            ]
+        );
+    }
+
 }

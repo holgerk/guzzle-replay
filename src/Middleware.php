@@ -3,6 +3,8 @@ declare(strict_types=1);
 
 namespace Holgerk\GuzzleReplay;
 
+use GuzzleHttp\Client;
+use GuzzleHttp\HandlerStack;
 use GuzzleHttp\Promise\FulfilledPromise;
 use Psr\Http\Message\RequestInterface;
 use Psr\Http\Message\ResponseInterface;
@@ -15,18 +17,33 @@ final class Middleware
     public static function create(Mode $mode, ?Options $options = null): self
     {
         $self = new self($mode);
-
         $self->options = $options ?? Options::create();
+        $self->initializeRecording();
 
-        if ($mode === Mode::Replay) {
-            $self->recording = $self->options->recorder->startReplay($self->options->recordName);
-        } else {
-            $self->recording = $self->options->recorder->startRecord($self->options->recordName);
-        }
         return $self;
     }
 
+    public static function inject(Client $client, Mode $mode, ?Options $options = null): void
+    {
+        $self = new self($mode);
+        $self->options = $options ?? Options::create();
+        $self->initializeRecording();
+
+        /** @var HandlerStack $stack */
+        $stack = $client->getConfig()['handler'];
+        $stack->push($self);
+    }
+
     private function __construct(private readonly Mode $mode) {}
+
+    private function initializeRecording(): void
+    {
+        if ($this->mode === Mode::Replay) {
+            $this->recording = $this->options->recorder->startReplay($this->options->recordName);
+        } else {
+            $this->recording = $this->options->recorder->startRecord($this->options->recordName);
+        }
+    }
 
     public function __invoke(callable $next): callable
     {
@@ -54,6 +71,5 @@ final class Middleware
     {
         $this->options->recorder->writeRecording();
     }
-
 
 }
