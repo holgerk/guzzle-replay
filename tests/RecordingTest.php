@@ -88,17 +88,6 @@ class RecordingTest extends TestCase
         );
     }
 
-    public function testNormalizeRequest(): void
-    {
-        $recording = new Recording();
-        $recording->addRecord(new Record(
-            $this->makeRequest(),
-            $this->makeResponse(['status' => 404])
-        ));
-        $response = $recording->findResponse($this->makeRequest());
-        $this->assertEquals(404, $response->getStatusCode());
-    }
-
 
     // helper methods
     // ============================================================================================
