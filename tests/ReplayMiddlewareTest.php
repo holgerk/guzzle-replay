@@ -4,7 +4,7 @@ namespace Holgerk\GuzzleReplay\Tests;
 
 use GuzzleHttp\Client;
 use GuzzleHttp\HandlerStack;
-use Holgerk\GuzzleReplay\Middleware;
+use Holgerk\GuzzleReplay\ReplayMiddleware;
 use Holgerk\GuzzleReplay\Mode;
 use Holgerk\GuzzleReplay\Options;
 use Holgerk\GuzzleReplay\RecordName;
@@ -16,8 +16,8 @@ use Symfony\Component\Process\Process;
 use Throwable;
 use function Holgerk\AssertGolden\assertGolden;
 
-#[CoversClass(Middleware::class)]
-class MiddlewareTest extends TestCase
+#[CoversClass(ReplayMiddleware::class)]
+class ReplayMiddlewareTest extends TestCase
 {
     public static function setUpBeforeClass(): void
     {
@@ -69,7 +69,7 @@ class MiddlewareTest extends TestCase
     public function testReplay(): void
     {
         $stack = HandlerStack::create();
-        $middleware = Middleware::create(Mode::Replay);
+        $middleware = ReplayMiddleware::create(Mode::Replay);
         $stack->push($middleware);
         $client = new Client(['handler' => $stack]);
 
@@ -85,7 +85,7 @@ class MiddlewareTest extends TestCase
         $recorder = new TestRecorder();
 
         $stack = HandlerStack::create();
-        $middleware = Middleware::create(Mode::Record, Options::create()
+        $middleware = ReplayMiddleware::create(Mode::Record, Options::create()
             ->setRequestTransformer(function (RequestModel $requestModel) {
                 $requestModel->uri = str_replace('localhost', 'host', $requestModel->uri);
             })
@@ -105,7 +105,7 @@ class MiddlewareTest extends TestCase
     public function testCustomRecordName(): void
     {
         $stack = HandlerStack::create();
-        $middleware = Middleware::create(Mode::Replay, Options::create()
+        $middleware = ReplayMiddleware::create(Mode::Replay, Options::create()
             ->setRecordName(RecordName::make(__CLASS__, __FUNCTION__))
         );
         $stack->push($middleware);
@@ -121,7 +121,7 @@ class MiddlewareTest extends TestCase
     public function testInject(): void
     {
         $client = new Client();
-        Middleware::inject($client, Mode::Replay);
+        ReplayMiddleware::inject($client, Mode::Replay);
         $response = $client->get('https://httpbin.org/uuid');
         $data = json_decode($response->getBody()->getContents());
         self::assertEquals('b32f97f9-db0d-4614-ba1e-a777c02864c3', $data->uuid);

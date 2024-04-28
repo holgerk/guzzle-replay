@@ -9,7 +9,7 @@ use GuzzleHttp\Promise\FulfilledPromise;
 use Psr\Http\Message\RequestInterface;
 use Psr\Http\Message\ResponseInterface;
 
-final class Middleware
+final class ReplayMiddleware
 {
     private Recording $recording;
     private Options $options;
