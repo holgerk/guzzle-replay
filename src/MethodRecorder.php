@@ -6,7 +6,7 @@ namespace Holgerk\GuzzleReplay;
 use ReflectionClass;
 use Symfony\Component\VarExporter\VarExporter;
 
-class Recorder implements RecorderInterface
+class MethodRecorder implements RecorderInterface
 {
     private ?Recording $recording;
     private ?RecordName $recordName;

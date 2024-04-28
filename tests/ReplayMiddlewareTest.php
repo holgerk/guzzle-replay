@@ -58,8 +58,9 @@ class ReplayMiddlewareTest extends TestCase
         include __DIR__ . "/cases/$className.test.php";
         $fqnClassName = '\\Holgerk\\GuzzleReplay\\Tests\\cases\\' . $className;
         $case = new $fqnClassName();
+        /** @var ReplayMiddleware $middleware */
         $middleware = $case->executeTest();
-        $middleware->writeRecording();
+        $middleware->getOptions()->recorder->writeRecording();
         self::assertFileEquals(
             __DIR__ . "/cases/$className.expected.php",
             __DIR__ . "/cases/$className.test.php",

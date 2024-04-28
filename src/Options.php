@@ -18,7 +18,7 @@ class Options
 
         // add defaults
         $self->recordName = RecordName::inflect(3);
-        $self->recorder = new Recorder();
+        $self->recorder = new MethodRecorder();
         $self->requestTransformer = function (RequestModel $_) { /* noop */ };
 
         return $self;

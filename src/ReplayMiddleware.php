@@ -67,9 +67,9 @@ final class ReplayMiddleware
         };
     }
 
-    public function writeRecording(): void
+    public function getOptions(): Options
     {
-        $this->options->recorder->writeRecording();
+        return $this->options;
     }
 
 }
