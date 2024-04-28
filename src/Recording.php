@@ -12,6 +12,9 @@ final class Recording
     /** @var Record[] */
     private array $records = [];
 
+    /** @var array<string, bool> */
+    private array $usedRecords = [];
+
     public static function fromArray(array $data): self
     {
         $self = new self();
@@ -32,7 +35,7 @@ final class Recording
     }
 
     /** @psalm-suppress InvalidReturnType */
-    public function findResponse(RequestModel $requestModel): Response
+    public function getReplayResponse(RequestModel $requestModel): Response
     {
         if (empty($this->records)) {
             throw new NoRecordingExistsException(
@@ -41,18 +44,44 @@ final class Recording
                 . "| -> Middleware::create(Mode::Record).\n"
             );
         }
-        // TODO throw if record already used
 
+        $foundRecord = null;
         foreach ($this->records as $record) {
             if ($record->requestModel == $requestModel) {
-                return $record->responseModel->toResponse();
+                $foundRecord = $record;
+                $alreadyUsed = $this->usedRecords[spl_object_hash($record)] ?? false;
+                if (! $alreadyUsed) {
+                    break;
+                }
             }
         }
 
-        $this->throwNoReplayFoundException($requestModel);
+        if ($foundRecord) {
+            $alreadyUsed = $this->usedRecords[spl_object_hash($record)] ?? false;
+            if ($alreadyUsed) {
+                $this->throwReplayAlreadyUsedAssertionError($record->requestModel);
+            }
+            $this->usedRecords[spl_object_hash($foundRecord)] = true;
+            return $foundRecord->responseModel->toResponse();
+        }
+
+        $this->throwNoReplayFoundAssertionError($requestModel);
     }
 
-    private function throwNoReplayFoundException(RequestModel $requestModel): void
+    private function throwReplayAlreadyUsedAssertionError(RequestModel $requestModel): void
+    {
+        $message = <<<EOS
+
+        Replay for this request was already used:
+        -----------------------------------------
+        - $requestModel
+        EOS;
+
+        $message = implode("\n| ", explode("\n", $message));
+        throw new ReplayAlreadyUsedAssertionError($message);
+    }
+
+    private function throwNoReplayFoundAssertionError(RequestModel $requestModel): void
     {
         // no matching response found, create a helpful exception
         $sortedRecords = $this->sortRecordsByDistanceToRequest($requestModel);
@@ -86,7 +115,7 @@ final class Recording
             EOS;
         }
         $message = implode("\n| ", explode("\n", $message));
-        throw new NoReplayFoundException($message);
+        throw new NoReplayFoundAssertionError($message);
     }
 
     private function sortRecordsByDistanceToRequest(RequestModel $requestModel): array

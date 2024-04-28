@@ -14,15 +14,6 @@ final class Middleware
     private Recording $recording;
     private Options $options;
 
-    public static function create(Mode $mode, ?Options $options = null): self
-    {
-        $self = new self($mode);
-        $self->options = $options ?? Options::create();
-        $self->initializeRecording();
-
-        return $self;
-    }
-
     public static function inject(Client $client, Mode $mode, ?Options $options = null): void
     {
         $self = new self($mode);
@@ -32,6 +23,15 @@ final class Middleware
         /** @var HandlerStack $stack */
         $stack = $client->getConfig()['handler'];
         $stack->push($self);
+    }
+
+    public static function create(Mode $mode, ?Options $options = null): self
+    {
+        $self = new self($mode);
+        $self->options = $options ?? Options::create();
+        $self->initializeRecording();
+
+        return $self;
     }
 
     private function __construct(private readonly Mode $mode) {}
@@ -54,7 +54,7 @@ final class Middleware
 
             if ($this->mode === Mode::Replay) {
                 return new FulfilledPromise(
-                    $this->recording->findResponse($requestModel)
+                    $this->recording->getReplayResponse($requestModel)
                 );
             }
             return $next($request, $options)->then(

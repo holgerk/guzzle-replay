@@ -19,8 +19,48 @@ class RecordingTest extends TestCase
             $this->makeRequest(),
             $this->makeResponse(['status' => 404])
         ));
-        $response = $recording->findResponse($this->makeRequest());
+        $response = $recording->getReplayResponse($this->makeRequest());
         $this->assertEquals(404, $response->getStatusCode());
+    }
+
+    public function testReplayAlreadyUsedException(): void
+    {
+        $recording = new Recording();
+        $recording->addRecord(new Record($this->makeRequest(), $this->makeResponse()));
+
+        $recording->getReplayResponse($this->makeRequest());
+        $message = null;
+        try {
+            $recording->getReplayResponse($this->makeRequest());
+        } catch (Throwable $e) {
+            $message = $e->getMessage();
+        }
+        assertGolden(
+            "\n"
+                .'| Replay for this request was already used:'."\n"
+                .'| -----------------------------------------'."\n"
+                .'| - Request '."\n"
+                .'|     method: GET'."\n"
+                .'|     uri: '."\n"
+                .'|     headers: []'."\n"
+                .'|     body: '."\n"
+                .'|     version: ',
+            $message
+        );
+    }
+
+    public function testNoReplayAlreadyUsedException(): void
+    {
+        self::expectNotToPerformAssertions();
+
+        $recording = new Recording();
+
+        // add same request twice
+        $recording->addRecord(new Record($this->makeRequest(), $this->makeResponse()));
+        $recording->addRecord(new Record($this->makeRequest(), $this->makeResponse()));
+
+        $recording->getReplayResponse($this->makeRequest());
+        $recording->getReplayResponse($this->makeRequest());
     }
 
     public function testNoReplayFoundException(): void
@@ -36,7 +76,7 @@ class RecordingTest extends TestCase
         ));
         $message = '';
         try {
-            $recording->findResponse(
+            $recording->getReplayResponse(
                 $this->makeRequest(['method' => 'POST', 'uri' => '/request-something'])
             );
         } catch (Throwable $e) {
