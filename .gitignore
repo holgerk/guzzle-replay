@@ -2,5 +2,6 @@
 /.idea/
 composer.lock
 .phpunit.cache
-/tests/cases/*.test.php
+/tests/ReplayMiddlewareTest_record_test/*.test.php
+/tests/FileRecorderTest_testRecord_guzzleRecording.php
 .phpunit.result.cache

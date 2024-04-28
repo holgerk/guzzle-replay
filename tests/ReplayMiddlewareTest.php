@@ -54,16 +54,16 @@ class ReplayMiddlewareTest extends TestCase
      */
     public function record_test(string $className): void
     {
-        copy(__DIR__ . "/cases/$className.before.php", __DIR__ . "/cases/$className.test.php");
-        include __DIR__ . "/cases/$className.test.php";
-        $fqnClassName = '\\Holgerk\\GuzzleReplay\\Tests\\cases\\' . $className;
+        copy(__DIR__ . "/ReplayMiddlewareTest_record_test/$className.before.php", __DIR__ . "/ReplayMiddlewareTest_record_test/$className.test.php");
+        include __DIR__ . "/ReplayMiddlewareTest_record_test/$className.test.php";
+        $fqnClassName = '\\Holgerk\\GuzzleReplay\\Tests\\ReplayMiddlewareTest_record_test\\' . $className;
         $case = new $fqnClassName();
         /** @var ReplayMiddleware $middleware */
         $middleware = $case->executeTest();
         $middleware->getOptions()->recorder->writeRecording();
         self::assertFileEquals(
-            __DIR__ . "/cases/$className.expected.php",
-            __DIR__ . "/cases/$className.test.php",
+            __DIR__ . "/ReplayMiddlewareTest_record_test/$className.expected.php",
+            __DIR__ . "/ReplayMiddlewareTest_record_test/$className.test.php",
         );
     }
 

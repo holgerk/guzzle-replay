@@ -2,8 +2,6 @@
 
 namespace Holgerk\GuzzleReplay;
 
-use Exception;
-
 /**
  * long name consists of test class, test method name and suffix
  * short name consists of test method name and suffix

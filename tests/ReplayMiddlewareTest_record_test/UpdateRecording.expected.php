@@ -1,6 +1,6 @@
 <?php
 
-namespace Holgerk\GuzzleReplay\Tests\cases;
+namespace Holgerk\GuzzleReplay\Tests\ReplayMiddlewareTest_record_test;
 
 use GuzzleHttp\Client;
 use GuzzleHttp\HandlerStack;

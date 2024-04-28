@@ -4,8 +4,6 @@ namespace Holgerk\GuzzleReplay\Tests;
 
 use Holgerk\GuzzleReplay\Record;
 use Holgerk\GuzzleReplay\Recording;
-use Holgerk\GuzzleReplay\RequestModel;
-use Holgerk\GuzzleReplay\ResponseModel;
 use PHPUnit\Framework\TestCase;
 use Throwable;
 use function Holgerk\AssertGolden\assertGolden;
@@ -16,22 +14,22 @@ class RecordingTest extends TestCase
     {
         $recording = new Recording();
         $recording->addRecord(new Record(
-            $this->makeRequest(),
-            $this->makeResponse(['status' => 404])
+            makeRequest(),
+            makeResponse(['status' => 404])
         ));
-        $response = $recording->getReplayResponse($this->makeRequest());
-        $this->assertEquals(404, $response->getStatusCode());
+        $response = $recording->getReplayResponse(makeRequest());
+        self::assertEquals(404, $response->getStatusCode());
     }
 
     public function testReplayAlreadyUsedException(): void
     {
         $recording = new Recording();
-        $recording->addRecord(new Record($this->makeRequest(), $this->makeResponse()));
+        $recording->addRecord(new Record(makeRequest(), makeResponse()));
 
-        $recording->getReplayResponse($this->makeRequest());
+        $recording->getReplayResponse(makeRequest());
         $message = null;
         try {
-            $recording->getReplayResponse($this->makeRequest());
+            $recording->getReplayResponse(makeRequest());
         } catch (Throwable $e) {
             $message = $e->getMessage();
         }
@@ -56,28 +54,28 @@ class RecordingTest extends TestCase
         $recording = new Recording();
 
         // add same request twice
-        $recording->addRecord(new Record($this->makeRequest(), $this->makeResponse()));
-        $recording->addRecord(new Record($this->makeRequest(), $this->makeResponse()));
+        $recording->addRecord(new Record(makeRequest(), makeResponse()));
+        $recording->addRecord(new Record(makeRequest(), makeResponse()));
 
-        $recording->getReplayResponse($this->makeRequest());
-        $recording->getReplayResponse($this->makeRequest());
+        $recording->getReplayResponse(makeRequest());
+        $recording->getReplayResponse(makeRequest());
     }
 
     public function testNoReplayFoundException(): void
     {
         $recording = new Recording();
         $recording->addRecord(new Record(
-            $this->makeRequest(['method' => 'PATCH', 'uri' => '/request-different']),
-            $this->makeResponse(['status' => 404])
+            makeRequest(['method' => 'PATCH', 'uri' => '/request-different']),
+            makeResponse(['status' => 404])
         ));
         $recording->addRecord(new Record(
-            $this->makeRequest(['method' => 'GET', 'uri' => '/request-different']),
-            $this->makeResponse(['status' => 404])
+            makeRequest(['method' => 'GET', 'uri' => '/request-different']),
+            makeResponse(['status' => 404])
         ));
         $message = '';
         try {
             $recording->getReplayResponse(
-                $this->makeRequest(['method' => 'POST', 'uri' => '/request-something'])
+                makeRequest(['method' => 'POST', 'uri' => '/request-something'])
             );
         } catch (Throwable $e) {
             $message = $e->getMessage();
@@ -129,30 +127,5 @@ class RecordingTest extends TestCase
     }
 
 
-    // helper methods
-    // ============================================================================================
 
-    /** @param array{method?: string, uri?: string, headers?: array, body?: string, version?: string} $data */
-    private function makeRequest(array $data = []): RequestModel
-    {
-        return RequestModel::fromArray([
-            'method' => $data['method'] ?? 'GET',
-            'uri' => $data['uri'] ?? '',
-            'headers' => $data['headers'] ?? [],
-            'body' => $data['body'] ?? '',
-            'version' => $data['version'] ?? '',
-        ]);
-    }
-
-    /** @param array{status?: int, headers?: array, body?: string, version?: string, reason?: string} $data */
-    private function makeResponse(array $data = []): ResponseModel
-    {
-        return ResponseModel::fromArray([
-            'status' => $data['status'] ?? 200,
-            'headers' => $data['headers'] ?? [],
-            'body' => $data['body'] ?? '',
-            'version' => $data['version'] ?? '',
-            'reason' => $data['reason'] ?? '',
-        ]);
-    }
 }
