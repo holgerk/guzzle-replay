@@ -14,18 +14,6 @@ final class GuzzleReplay
     private Recording $recording;
     private Options $options;
 
-    public static function inject(Client $client, Mode $mode, ?Options $options = null): self
-    {
-        $self = new self($mode);
-        $self->options = $options ?? self::makeOptions();
-        $self->initializeRecording();
-
-        /** @var HandlerStack $stack */
-        $stack = $client->getConfig()['handler'];
-        $stack->push($self);
-        return $self;
-    }
-
     public static function create(Mode $mode, ?Options $options = null): self
     {
         $self = new self($mode);
@@ -33,6 +21,15 @@ final class GuzzleReplay
         $self->initializeRecording();
 
         return $self;
+    }
+
+    public function inject(Client $client): self
+    {
+        /** @var HandlerStack $stack */
+        $stack = $client->getConfig()['handler'];
+        $stack->push($this);
+
+        return $this;
     }
 
     private static function makeOptions(): Options

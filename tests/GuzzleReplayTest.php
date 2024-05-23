@@ -122,7 +122,7 @@ class GuzzleReplayTest extends TestCase
     public function testInject(): void
     {
         $client = new Client();
-        GuzzleReplay::inject($client, Mode::Replay);
+        GuzzleReplay::create(Mode::Replay)->inject($client);
         $response = $client->get('https://httpbin.org/uuid');
         $data = json_decode($response->getBody()->getContents());
         self::assertEquals('b32f97f9-db0d-4614-ba1e-a777c02864c3', $data->uuid);

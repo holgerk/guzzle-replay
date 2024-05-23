@@ -25,12 +25,12 @@ class GithubApiTest extends TestCase
     public function testSimple(): void
     {
         $client = new Client();
-        GuzzleReplay::inject($client, Mode::Replay, Options::create()
+        GuzzleReplay::create(Mode::Replay, Options::create()
             ->setRequestTransformer(static function (RequestModel $requestModel) {
                 // remove Authorization header, to not leak sensitive data
                 unset($requestModel->headers['Authorization']);
             })
-        );
+        )->inject($client);
         $api = new GithubApi($client);
         self::assertEquals(30, $api->getTotalCommitCount());
     }

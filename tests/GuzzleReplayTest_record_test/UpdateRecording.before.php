@@ -14,7 +14,7 @@ class UpdateRecording {
     public function executeTest(): GuzzleReplay
     {
         $client = new Client();
-        $middleware = GuzzleReplay::inject($client, Mode::Record, Options::create()
+        $middleware = GuzzleReplay::create(Mode::Record, Options::create()
             ->setResponseTransformer(
                 static function (ResponseModel $responseModel) {
                     // use a fixed value to make assertions easier
@@ -22,6 +22,7 @@ class UpdateRecording {
                 }
             )
         );
+        $middleware->inject($client);
         $client->get('http://localhost:8000/?queryParam=42');
         return $middleware;
     }
