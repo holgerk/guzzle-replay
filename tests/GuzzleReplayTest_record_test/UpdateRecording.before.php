@@ -1,20 +1,20 @@
 <?php
 
-namespace Holgerk\GuzzleReplay\Tests\ReplayMiddlewareTest_record_test;
+namespace Holgerk\GuzzleReplay\Tests\GuzzleReplayTest_record_test;
 
 use GuzzleHttp\Client;
 use GuzzleHttp\HandlerStack;
 use Holgerk\GuzzleReplay\Options;
-use Holgerk\GuzzleReplay\ReplayMiddleware;
+use Holgerk\GuzzleReplay\GuzzleReplay;
 use Holgerk\GuzzleReplay\Mode;
 use Holgerk\GuzzleReplay\ResponseModel;
 
-class NewRecording {
+class UpdateRecording {
 
-    public function executeTest(): ReplayMiddleware
+    public function executeTest(): GuzzleReplay
     {
         $client = new Client();
-        $middleware = ReplayMiddleware::inject($client, Mode::Record, Options::create()
+        $middleware = GuzzleReplay::inject($client, Mode::Record, Options::create()
             ->setResponseTransformer(
                 static function (ResponseModel $responseModel) {
                     // use a fixed value to make assertions easier
@@ -26,4 +26,8 @@ class NewRecording {
         return $middleware;
     }
 
+    public static function guzzleRecording_executeTest(): \Holgerk\GuzzleReplay\Recording
+    {
+
+    }
 }

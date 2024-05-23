@@ -2,7 +2,7 @@
 /.idea/
 composer.lock
 .phpunit.cache
-/tests/ReplayMiddlewareTest_record_test/*.test.php
+/tests/GuzzleReplayTest_record_test/*.test.php
 /tests/FileRecorderTest_testRecord_guzzleRecording.php
 .phpunit.result.cache
 .env

@@ -4,7 +4,7 @@ namespace Holgerk\GuzzleReplay\Tests;
 
 use GuzzleHttp\Client;
 use GuzzleHttp\HandlerStack;
-use Holgerk\GuzzleReplay\ReplayMiddleware;
+use Holgerk\GuzzleReplay\GuzzleReplay;
 use Holgerk\GuzzleReplay\Mode;
 use Holgerk\GuzzleReplay\Options;
 use Holgerk\GuzzleReplay\RecordName;
@@ -16,8 +16,8 @@ use Symfony\Component\Process\Process;
 use Throwable;
 use function Holgerk\AssertGolden\assertGolden;
 
-#[CoversClass(ReplayMiddleware::class)]
-class ReplayMiddlewareTest extends TestCase
+#[CoversClass(GuzzleReplay::class)]
+class GuzzleReplayTest extends TestCase
 {
     public static function setUpBeforeClass(): void
     {
@@ -54,23 +54,23 @@ class ReplayMiddlewareTest extends TestCase
      */
     public function record_test(string $className): void
     {
-        copy(__DIR__ . "/ReplayMiddlewareTest_record_test/$className.before.php", __DIR__ . "/ReplayMiddlewareTest_record_test/$className.test.php");
-        include __DIR__ . "/ReplayMiddlewareTest_record_test/$className.test.php";
-        $fqnClassName = '\\Holgerk\\GuzzleReplay\\Tests\\ReplayMiddlewareTest_record_test\\' . $className;
+        copy(__DIR__ . "/GuzzleReplayTest_record_test/$className.before.php", __DIR__ . "/GuzzleReplayTest_record_test/$className.test.php");
+        include __DIR__ . "/GuzzleReplayTest_record_test/$className.test.php";
+        $fqnClassName = '\\Holgerk\\GuzzleReplay\\Tests\\GuzzleReplayTest_record_test\\' . $className;
         $case = new $fqnClassName();
-        /** @var ReplayMiddleware $middleware */
+        /** @var GuzzleReplay $middleware */
         $middleware = $case->executeTest();
         $middleware->getOptions()->recorder->writeRecording();
         self::assertFileEquals(
-            __DIR__ . "/ReplayMiddlewareTest_record_test/$className.expected.php",
-            __DIR__ . "/ReplayMiddlewareTest_record_test/$className.test.php",
+            __DIR__ . "/GuzzleReplayTest_record_test/$className.expected.php",
+            __DIR__ . "/GuzzleReplayTest_record_test/$className.test.php",
         );
     }
 
     public function testReplay(): void
     {
         $stack = HandlerStack::create();
-        $middleware = ReplayMiddleware::create(Mode::Replay);
+        $middleware = GuzzleReplay::create(Mode::Replay);
         $stack->push($middleware);
         $client = new Client(['handler' => $stack]);
 
@@ -86,7 +86,7 @@ class ReplayMiddlewareTest extends TestCase
         $recorder = new TestRecorder();
 
         $stack = HandlerStack::create();
-        $middleware = ReplayMiddleware::create(Mode::Record, Options::create()
+        $middleware = GuzzleReplay::create(Mode::Record, Options::create()
             ->setRequestTransformer(function (RequestModel $requestModel) {
                 $requestModel->uri = str_replace('localhost', 'host', $requestModel->uri);
             })
@@ -106,7 +106,7 @@ class ReplayMiddlewareTest extends TestCase
     public function testCustomRecordName(): void
     {
         $stack = HandlerStack::create();
-        $middleware = ReplayMiddleware::create(Mode::Replay, Options::create()
+        $middleware = GuzzleReplay::create(Mode::Replay, Options::create()
             ->setRecordName(RecordName::make(__CLASS__, __FUNCTION__))
         );
         $stack->push($middleware);
@@ -122,7 +122,7 @@ class ReplayMiddlewareTest extends TestCase
     public function testInject(): void
     {
         $client = new Client();
-        ReplayMiddleware::inject($client, Mode::Replay);
+        GuzzleReplay::inject($client, Mode::Replay);
         $response = $client->get('https://httpbin.org/uuid');
         $data = json_decode($response->getBody()->getContents());
         self::assertEquals('b32f97f9-db0d-4614-ba1e-a777c02864c3', $data->uuid);

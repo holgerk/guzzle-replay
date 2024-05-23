@@ -8,7 +8,7 @@ use GuzzleHttp\RequestOptions;
 use Holgerk\GuzzleReplay\Mode;
 use Holgerk\GuzzleReplay\Options;
 use Holgerk\GuzzleReplay\RecordName;
-use Holgerk\GuzzleReplay\ReplayMiddleware;
+use Holgerk\GuzzleReplay\GuzzleReplay;
 use Holgerk\GuzzleReplay\RequestModel;
 use PHPUnit\Framework\TestCase;
 
@@ -24,7 +24,7 @@ class GithubApiTest extends TestCase
     public function testSimple(): void
     {
         $client = new Client();
-        ReplayMiddleware::inject($client, Mode::Replay, Options::create()
+        GuzzleReplay::inject($client, Mode::Replay, Options::create()
             ->setRequestTransformer(static function (RequestModel $requestModel) {
                 // remove Authorization header, to not leak sensitive data
                 unset($requestModel->headers['Authorization']);

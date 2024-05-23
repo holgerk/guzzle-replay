@@ -41,7 +41,7 @@ final class Recording
             throw new NoRecordingExistsException(
                 "\n| No records were found.\n"
                 . "| Maybe you forgot to record.\n"
-                . "| -> Middleware::create(Mode::Record).\n"
+                . "| -> GuzzleReplay::inject(\$client, Mode::Record).\n"
             );
         }
 
