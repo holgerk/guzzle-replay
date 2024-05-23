@@ -5,3 +5,4 @@ composer.lock
 /tests/ReplayMiddlewareTest_record_test/*.test.php
 /tests/FileRecorderTest_testRecord_guzzleRecording.php
 .phpunit.result.cache
+.env

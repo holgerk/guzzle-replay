@@ -12,14 +12,18 @@ class Options
     /** @var callable(RequestModel):void */
     public mixed $requestTransformer;
 
+    /** @var callable(ResponseModel):void */
+    public mixed $responseTransformer;
+
     public static function create(): self
     {
         $self = new self();
 
         // add defaults
-        $self->recordName = RecordName::inflect(3);
+        $self->recordName = RecordName::inflect(2);
         $self->recorder = new MethodRecorder();
-        $self->requestTransformer = function (RequestModel $_) { /* noop */ };
+        $self->requestTransformer = static function (RequestModel $_) { /* noop */ };
+        $self->responseTransformer = static function (ResponseModel $_) { /* noop */ };
 
         return $self;
     }
@@ -42,6 +46,13 @@ class Options
     public function setRequestTransformer(mixed $requestTransformer): self
     {
         $this->requestTransformer = $requestTransformer;
+        return $this;
+    }
+
+    /** @param callable(ResponseModel):void $responseTransformer */
+    public function setResponseTransformer(mixed $responseTransformer): self
+    {
+        $this->responseTransformer = $responseTransformer;
         return $this;
     }
 

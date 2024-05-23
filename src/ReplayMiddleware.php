@@ -14,24 +14,30 @@ final class ReplayMiddleware
     private Recording $recording;
     private Options $options;
 
-    public static function inject(Client $client, Mode $mode, ?Options $options = null): void
+    public static function inject(Client $client, Mode $mode, ?Options $options = null): self
     {
         $self = new self($mode);
-        $self->options = $options ?? Options::create();
+        $self->options = $options ?? self::makeOptions();
         $self->initializeRecording();
 
         /** @var HandlerStack $stack */
         $stack = $client->getConfig()['handler'];
         $stack->push($self);
+        return $self;
     }
 
     public static function create(Mode $mode, ?Options $options = null): self
     {
         $self = new self($mode);
-        $self->options = $options ?? Options::create();
+        $self->options = $options ?? self::makeOptions();
         $self->initializeRecording();
 
         return $self;
+    }
+
+    private static function makeOptions(): Options
+    {
+        return Options::create()->setRecordName(RecordName::inflect(3));
     }
 
     private function __construct(private readonly Mode $mode) {}
@@ -60,6 +66,9 @@ final class ReplayMiddleware
             return $next($request, $options)->then(
                 function (ResponseInterface $response) use ($requestModel) {
                     $responseModel = ResponseModel::fromResponse($response);
+
+                    ($this->options->responseTransformer)($responseModel);
+
                     $this->recording->addRecord(new Record($requestModel, $responseModel));
                     return $response;
                 }
