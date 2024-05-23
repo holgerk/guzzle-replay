@@ -22,8 +22,8 @@ class Options
         // add defaults
         $self->recordName = RecordName::inflect(2);
         $self->recorder = new MethodRecorder();
-        $self->requestTransformer = static function (RequestModel $_) { /* noop */ };
-        $self->responseTransformer = static function (ResponseModel $_) { /* noop */ };
+        $self->requestTransformer = static function (RequestModel $_): void { /* noop */ };
+        $self->responseTransformer = static function (ResponseModel $_): void { /* noop */ };
 
         return $self;
     }

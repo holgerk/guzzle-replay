@@ -15,7 +15,7 @@ class RecordName
 
     private function __construct() {}
 
-    public static function inflect($distance = 1): static
+    public static function inflect(int $distance = 1): static
     {
         $self = new self();
         $stack = debug_backtrace(DEBUG_BACKTRACE_IGNORE_ARGS, 1 + $distance);
