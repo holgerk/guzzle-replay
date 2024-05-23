@@ -46,13 +46,24 @@ final class ResponseModel
 
     public function toArray(): array
     {
-        return [
+        $result = [
             'status' => $this->status,
             'headers' => $this->headers,
             'body' => $this->body,
             'version' => $this->version,
             'reason' => $this->reason,
         ];
+
+        $headerLookup = array_combine(
+            array_map('strtolower', array_keys($this->headers)),
+            array_keys($this->headers)
+        );
+        $contentType = $this->headers[$headerLookup['content-type'] ?? -1][0] ?? '';
+        if (stripos($contentType, 'json') !== false) {
+            $result['decodedBody'] = json_decode($this->body, true);
+        }
+
+        return $result;
     }
 
     public function toResponse(): Response

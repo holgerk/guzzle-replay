@@ -71,6 +71,9 @@ class NewRecording {
                                 .'}',
                             'version' => '1.1',
                             'reason' => 'OK',
+                            'decodedBody' => [
+                                'queryParam' => '42',
+                            ],
                         ],
                     ],
                 ],
