@@ -4,33 +4,49 @@ namespace Holgerk\GuzzleReplay\Tests\example;
 
 use Dotenv\Dotenv;
 use GuzzleHttp\Client;
-use GuzzleHttp\RequestOptions;
 use Holgerk\GuzzleReplay\Mode;
 use Holgerk\GuzzleReplay\Options;
-use Holgerk\GuzzleReplay\RecordName;
 use Holgerk\GuzzleReplay\GuzzleReplay;
 use Holgerk\GuzzleReplay\RequestModel;
+use Illuminate\Support\Facades\Http;
 use PHPUnit\Framework\TestCase;
+
+use function Holgerk\AssertGolden\assertGolden;
 
 class GithubApiTest extends TestCase
 {
     public static function setUpBeforeClass(): void
     {
         parent::setUpBeforeClass();
+        // load env with GITHUB_TOKEN
         if (file_exists(dirname(__DIR__, 2) . '/.env')) {
             Dotenv::createImmutable(dirname(__DIR__, 2))->load();
         }
     }
 
+    public function testLaravelFacade(): void
+    {
+        // set the underlying instance behind the facade,
+        // this is normally done by laravels dependency container
+        Http::swap(new \Illuminate\Http\Client\Factory());
+
+        Http::globalMiddleware(GuzzleReplay::create(Mode::Replay));
+        assertGolden(
+            ['uuid' => 'd7e0d101-16ae-4250-9c2c-97d10dc9e0fe'],
+            Http::get('https://httpbin.org/uuid')->json()
+        );
+    }
+
     public function testSimple(): void
     {
-        $client = new Client();
-        GuzzleReplay::create(Mode::Replay, Options::create()
+        $middleware = GuzzleReplay::create(Mode::Replay, Options::create()
             ->setRequestTransformer(static function (RequestModel $requestModel) {
                 // remove Authorization header, to not leak sensitive data
                 unset($requestModel->headers['Authorization']);
             })
-        )->inject($client);
+        );
+        $client = new Client();
+        $middleware->inject($client);
         $api = new GithubApi($client);
         self::assertEquals(30, $api->getTotalCommitCount());
     }
@@ -825,6 +841,67 @@ class GithubApiTest extends TestCase
                                     'total' => 3,
                                     'week' => 1716076800,
                                 ],
+                            ],
+                        ],
+                    ],
+                ],
+            ]
+        );
+    }
+
+    public static function guzzleRecording_testLaravelFacade(): \Holgerk\GuzzleReplay\Recording
+    {
+        // GENERATED - DO NOT EDIT
+        return \Holgerk\GuzzleReplay\Recording::fromArray(
+            [
+                'records' => [
+                    [
+                        'requestModel' => [
+                            'method' => 'GET',
+                            'uri' => 'https://httpbin.org/uuid',
+                            'headers' => [
+                                'User-Agent' => [
+                                    'GuzzleHttp/7',
+                                ],
+                                'Host' => [
+                                    'httpbin.org',
+                                ],
+                            ],
+                            'body' => '',
+                            'version' => '1.1',
+                        ],
+                        'responseModel' => [
+                            'status' => 200,
+                            'headers' => [
+                                'Date' => [
+                                    'Sat, 13 Jul 2024 11:50:27 GMT',
+                                ],
+                                'Content-Type' => [
+                                    'application/json',
+                                ],
+                                'Content-Length' => [
+                                    '53',
+                                ],
+                                'Connection' => [
+                                    'keep-alive',
+                                ],
+                                'Server' => [
+                                    'gunicorn/19.9.0',
+                                ],
+                                'Access-Control-Allow-Origin' => [
+                                    '*',
+                                ],
+                                'Access-Control-Allow-Credentials' => [
+                                    'true',
+                                ],
+                            ],
+                            'body' => '{'."\n"
+                                .'  "uuid": "d7e0d101-16ae-4250-9c2c-97d10dc9e0fe"'."\n"
+                                .'}'."\n",
+                            'version' => '1.1',
+                            'reason' => 'OK',
+                            'decodedBody' => [
+                                'uuid' => 'd7e0d101-16ae-4250-9c2c-97d10dc9e0fe',
                             ],
                         ],
                     ],

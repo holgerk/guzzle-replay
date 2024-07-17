@@ -47,7 +47,7 @@ final class GuzzleReplay
             $this->recording = $this->options->recorder->startRecord($this->options->recordName);
         }
     }
-
+    
     public function __invoke(callable $next): callable
     {
         return function (RequestInterface $request, array $options) use ($next) {
