@@ -34,7 +34,9 @@ final class GuzzleReplay
 
     private static function makeOptions(): Options
     {
-        return Options::create()->setRecordName(RecordName::inflect(3));
+        return Options::create()->setRecordName(
+            (Options::$globalRecordNameFactory ?? fn(int $distance) => RecordName::inflect($distance))(4)
+        );
     }
 
     private function __construct(private readonly Mode $mode) {}
