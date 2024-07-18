@@ -3,7 +3,6 @@
 namespace Holgerk\GuzzleReplay\Tests\GuzzleReplayTest_record_test;
 
 use GuzzleHttp\Client;
-use GuzzleHttp\HandlerStack;
 use Holgerk\GuzzleReplay\Options;
 use Holgerk\GuzzleReplay\GuzzleReplay;
 use Holgerk\GuzzleReplay\Mode;
