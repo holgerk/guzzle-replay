@@ -6,6 +6,7 @@ use GuzzleHttp\Client;
 use Holgerk\GuzzleReplay\Options;
 use Holgerk\GuzzleReplay\GuzzleReplay;
 use Holgerk\GuzzleReplay\Mode;
+use Holgerk\GuzzleReplay\Recording;
 use Holgerk\GuzzleReplay\ResponseModel;
 
 class UpdateRecording {
@@ -28,6 +29,6 @@ class UpdateRecording {
 
     public static function guzzleRecording_executeTest(): \Holgerk\GuzzleReplay\Recording
     {
-
+        return new Recording();
     }
 }

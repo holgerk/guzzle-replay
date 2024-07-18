@@ -43,7 +43,9 @@ final class ResponseModel
             $data['reason'],
         );
     }
-
+    /**
+     * @return array<string,mixed>
+     */
     public function toArray(): array
     {
         $result = [
