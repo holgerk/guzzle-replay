@@ -62,4 +62,15 @@ final class RequestModel
             version: $this->version
         EOS;
     }
+
+    public function replaceString(string $search, string $replace): void
+    {
+        $this->uri = str_replace($search, $replace, $this->uri);
+        $this->body = str_replace($search, $replace, $this->body);
+        foreach ($this->headers as &$values) {
+            foreach ($values as &$value) {
+                $value = str_replace($search, $replace, $value);
+            }
+        }
+    }
 }

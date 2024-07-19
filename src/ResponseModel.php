@@ -12,7 +12,7 @@ final class ResponseModel
         public int $status,
         /** @var string[][] */
         public array $headers,
-        public mixed $body,
+        public string $body,
         public string $version,
         public string $reason,
     ) {}
@@ -77,5 +77,28 @@ final class ResponseModel
             version: $this->version,
             reason: $this->reason,
         );
+    }
+    
+    public function __toString(): string
+    {
+        $headers = json_encode($this->headers);
+        return <<<EOS
+        Request 
+            status: $this->status
+            headers: $headers
+            body: $this->body
+            version: $this->version
+            reason: $this->reason
+        EOS;
+    }
+
+    public function replaceString(string $search, string $replace): void
+    {
+        $this->body = str_replace($search, $replace, $this->body);
+        foreach ($this->headers as &$values) {
+            foreach ($values as &$value) {
+                $value = str_replace($search, $replace, $value);
+            }
+        }
     }
 }

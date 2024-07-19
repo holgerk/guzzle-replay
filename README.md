@@ -32,6 +32,18 @@ use Holgerk\GuzzleReplay\Options;
 Options::$globalRecorderFactory = fn() => new FileRecorder();
 ```
 
+### Masking sensistive data
+```php
+$middleware = GuzzleReplay::create(Mode::Replay, Options::create()
+    ->setRequestTransformer(static function (RequestModel $requestModel) {
+        // mask authorization token, to not leak sensitive data
+        $requestModel->replaceString($_ENV['GITHUB_TOKEN'], 'XXX');
+        // or you can unset the header 
+        //unset($requestModel->headers['Authorization']);
+    })
+);
+```
+
 ### TODOS
 
 - Document recorded request transformer

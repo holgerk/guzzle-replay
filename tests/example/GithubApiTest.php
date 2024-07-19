@@ -39,16 +39,18 @@ class GithubApiTest extends TestCase
 
     public function testSimple(): void
     {
+        $client = new Client();
         $middleware = GuzzleReplay::create(Mode::Replay, Options::create()
             ->setRequestTransformer(static function (RequestModel $requestModel) {
-                // remove Authorization header, to not leak sensitive data
-                unset($requestModel->headers['Authorization']);
+                // mask authorization token, to not leak sensitive data
+                $requestModel->replaceString($_ENV['GITHUB_TOKEN'], 'XXX');
+                // or you can unset the header 
+                //unset($requestModel->headers['Authorization']);
             })
         );
-        $client = new Client();
         $middleware->inject($client);
         $api = new GithubApi($client);
-        self::assertEquals(30, $api->getTotalCommitCount());
+        assertGolden(['v0.1.0'], $api->getTagNames());
     }
 
     public static function guzzleRecording_testSimple(): \Holgerk\GuzzleReplay\Recording
@@ -60,7 +62,7 @@ class GithubApiTest extends TestCase
                     [
                         'requestModel' => [
                             'method' => 'GET',
-                            'uri' => 'https://api.github.com/repos/holgerk/guzzle-replay/stats/commit_activity',
+                            'uri' => 'https://api.github.com/repos/holgerk/guzzle-replay/tags',
                             'headers' => [
                                 'User-Agent' => [
                                     'GuzzleHttp/7',
@@ -70,6 +72,9 @@ class GithubApiTest extends TestCase
                                 ],
                                 'Accept' => [
                                     'application/vnd.github+json',
+                                ],
+                                'Authorization' => [
+                                    'Bearer XXX',
                                 ],
                                 'X-GitHub-Api-Version' => [
                                     '2022-11-28',
@@ -81,39 +86,35 @@ class GithubApiTest extends TestCase
                         'responseModel' => [
                             'status' => 200,
                             'headers' => [
-                                'Server' => [
-                                    'GitHub.com',
-                                ],
                                 'Date' => [
-                                    'Thu, 23 May 2024 18:53:10 GMT',
+                                    'Fri, 19 Jul 2024 08:45:59 GMT',
                                 ],
                                 'Content-Type' => [
                                     'application/json; charset=utf-8',
                                 ],
                                 'Content-Length' => [
-                                    '2759',
+                                    '420',
                                 ],
                                 'Cache-Control' => [
                                     'private, max-age=60, s-maxage=60',
                                 ],
                                 'Vary' => [
-                                    'Accept, Authorization, Cookie, X-GitHub-OTP',
-                                    'Accept-Encoding, Accept, X-Requested-With',
+                                    'Accept, Authorization, Cookie, X-GitHub-OTP,Accept-Encoding, Accept, X-Requested-With',
                                 ],
                                 'ETag' => [
-                                    '"70c9a4fe6881a6954286e678cfa5e75f30dcd19f2e22983dab06c34064c79eaa"',
+                                    '"1c694af3ff1864e2f69790a3c431d7bfa85c2a3e8a80b5c12ec28bb0e3d0b11d"',
                                 ],
-                                'X-OAuth-Scopes' => [
-                                    'repo',
-                                ],
-                                'X-Accepted-OAuth-Scopes' => [
-                                    '',
+                                'Last-Modified' => [
+                                    'Thu, 18 Jul 2024 14:12:29 GMT',
                                 ],
                                 'github-authentication-token-expiration' => [
-                                    '2024-08-20 05:29:25 UTC',
+                                    '2024-10-17 10:34:01 +0200',
                                 ],
                                 'X-GitHub-Media-Type' => [
                                     'github.v3; format=json',
+                                ],
+                                'x-accepted-github-permissions' => [
+                                    'metadata=read',
                                 ],
                                 'x-github-api-version-selected' => [
                                     '2022-11-28',
@@ -122,13 +123,13 @@ class GithubApiTest extends TestCase
                                     '5000',
                                 ],
                                 'X-RateLimit-Remaining' => [
-                                    '4994',
+                                    '4985',
                                 ],
                                 'X-RateLimit-Reset' => [
-                                    '1716493944',
+                                    '1721380813',
                                 ],
                                 'X-RateLimit-Used' => [
-                                    '6',
+                                    '15',
                                 ],
                                 'X-RateLimit-Resource' => [
                                     'core',
@@ -157,689 +158,26 @@ class GithubApiTest extends TestCase
                                 'Content-Security-Policy' => [
                                     'default-src \'none\'',
                                 ],
+                                'Server' => [
+                                    'github.com',
+                                ],
                                 'X-GitHub-Request-Id' => [
-                                    '148B:372E44:475FB5C:47A9956:664F9095',
+                                    '08FA:26B667:13331BA:1381542:669A27C6',
                                 ],
                             ],
-                            'body' => '[{"days":[0,0,0,0,0,0,0],"total":0,"week":1685232000},{"days":[0,0,0,0,0,0,0],"total":0,"week":1685836800},{"days":[0,0,0,0,0,0,0],"total":0,"week":1686441600},{"days":[0,0,0,0,0,0,0],"total":0,"week":1687046400},{"days":[0,0,0,0,0,0,0],"total":0,"week":1687651200},{"days":[0,0,0,0,0,0,0],"total":0,"week":1688256000},{"days":[0,0,0,0,0,0,0],"total":0,"week":1688860800},{"days":[0,0,0,0,0,0,0],"total":0,"week":1689465600},{"days":[0,0,0,0,0,0,0],"total":0,"week":1690070400},{"days":[0,0,0,0,0,0,0],"total":0,"week":1690675200},{"days":[0,0,0,0,0,0,0],"total":0,"week":1691280000},{"days":[0,0,0,0,0,0,0],"total":0,"week":1691884800},{"days":[0,0,0,0,0,0,0],"total":0,"week":1692489600},{"days":[0,0,0,0,0,0,0],"total":0,"week":1693094400},{"days":[0,0,0,0,0,0,0],"total":0,"week":1693699200},{"days":[0,0,0,0,0,0,0],"total":0,"week":1694304000},{"days":[0,0,0,0,0,0,0],"total":0,"week":1694908800},{"days":[0,0,0,0,0,0,0],"total":0,"week":1695513600},{"days":[0,0,0,0,0,0,0],"total":0,"week":1696118400},{"days":[0,0,0,0,0,0,0],"total":0,"week":1696723200},{"days":[0,0,0,0,0,0,0],"total":0,"week":1697328000},{"days":[0,0,0,0,0,0,0],"total":0,"week":1697932800},{"days":[0,0,0,0,0,0,0],"total":0,"week":1698537600},{"days":[0,0,0,0,0,0,0],"total":0,"week":1699142400},{"days":[0,0,0,0,0,0,0],"total":0,"week":1699750800},{"days":[0,0,0,0,0,0,0],"total":0,"week":1700355600},{"days":[0,0,0,0,0,0,0],"total":0,"week":1700960400},{"days":[0,0,0,0,0,0,0],"total":0,"week":1701565200},{"days":[0,0,0,0,0,0,0],"total":0,"week":1702170000},{"days":[0,0,0,0,0,0,0],"total":0,"week":1702774800},{"days":[0,0,0,0,0,0,0],"total":0,"week":1703379600},{"days":[0,0,0,0,0,0,0],"total":0,"week":1703984400},{"days":[0,0,0,0,0,0,0],"total":0,"week":1704589200},{"days":[0,0,0,0,0,0,0],"total":0,"week":1705194000},{"days":[0,0,0,0,0,0,0],"total":0,"week":1705798800},{"days":[0,0,0,0,0,0,0],"total":0,"week":1706403600},{"days":[0,0,0,0,0,0,0],"total":0,"week":1707008400},{"days":[0,0,0,0,0,0,0],"total":0,"week":1707613200},{"days":[0,0,0,0,0,0,0],"total":0,"week":1708218000},{"days":[0,0,0,0,0,0,0],"total":0,"week":1708822800},{"days":[0,0,0,0,0,0,0],"total":0,"week":1709427600},{"days":[0,0,0,0,0,0,0],"total":0,"week":1710032400},{"days":[0,0,0,0,0,0,0],"total":0,"week":1710633600},{"days":[0,0,0,0,0,0,0],"total":0,"week":1711238400},{"days":[0,0,0,0,0,0,0],"total":0,"week":1711843200},{"days":[0,0,0,1,0,0,1],"total":2,"week":1712448000},{"days":[11,2,2,3,0,0,0],"total":18,"week":1713052800},{"days":[0,3,0,0,0,0,0],"total":3,"week":1713657600},{"days":[4,0,0,0,0,0,0],"total":4,"week":1714262400},{"days":[0,0,0,0,0,0,0],"total":0,"week":1714867200},{"days":[0,0,0,0,0,0,0],"total":0,"week":1715472000},{"days":[0,0,0,0,3,0,0],"total":3,"week":1716076800}]',
+                            'body' => '[{"name":"v0.1.0","zipball_url":"https://api.github.com/repos/holgerk/guzzle-replay/zipball/refs/tags/v0.1.0","tarball_url":"https://api.github.com/repos/holgerk/guzzle-replay/tarball/refs/tags/v0.1.0","commit":{"sha":"e88eb3aa4f57afad0f792d50217737c80617a993","url":"https://api.github.com/repos/holgerk/guzzle-replay/commits/e88eb3aa4f57afad0f792d50217737c80617a993"},"node_id":"REF_kwDOLsRAD7ByZWZzL3RhZ3MvdjAuMS4w"}]',
                             'version' => '1.1',
                             'reason' => 'OK',
                             'decodedBody' => [
                                 [
-                                    'days' => [
-                                        0,
-                                        0,
-                                        0,
-                                        0,
-                                        0,
-                                        0,
-                                        0,
+                                    'name' => 'v0.1.0',
+                                    'zipball_url' => 'https://api.github.com/repos/holgerk/guzzle-replay/zipball/refs/tags/v0.1.0',
+                                    'tarball_url' => 'https://api.github.com/repos/holgerk/guzzle-replay/tarball/refs/tags/v0.1.0',
+                                    'commit' => [
+                                        'sha' => 'e88eb3aa4f57afad0f792d50217737c80617a993',
+                                        'url' => 'https://api.github.com/repos/holgerk/guzzle-replay/commits/e88eb3aa4f57afad0f792d50217737c80617a993',
                                     ],
-                                    'total' => 0,
-                                    'week' => 1685232000,
-                                ],
-                                [
-                                    'days' => [
-                                        0,
-                                        0,
-                                        0,
-                                        0,
-                                        0,
-                                        0,
-                                        0,
-                                    ],
-                                    'total' => 0,
-                                    'week' => 1685836800,
-                                ],
-                                [
-                                    'days' => [
-                                        0,
-                                        0,
-                                        0,
-                                        0,
-                                        0,
-                                        0,
-                                        0,
-                                    ],
-                                    'total' => 0,
-                                    'week' => 1686441600,
-                                ],
-                                [
-                                    'days' => [
-                                        0,
-                                        0,
-                                        0,
-                                        0,
-                                        0,
-                                        0,
-                                        0,
-                                    ],
-                                    'total' => 0,
-                                    'week' => 1687046400,
-                                ],
-                                [
-                                    'days' => [
-                                        0,
-                                        0,
-                                        0,
-                                        0,
-                                        0,
-                                        0,
-                                        0,
-                                    ],
-                                    'total' => 0,
-                                    'week' => 1687651200,
-                                ],
-                                [
-                                    'days' => [
-                                        0,
-                                        0,
-                                        0,
-                                        0,
-                                        0,
-                                        0,
-                                        0,
-                                    ],
-                                    'total' => 0,
-                                    'week' => 1688256000,
-                                ],
-                                [
-                                    'days' => [
-                                        0,
-                                        0,
-                                        0,
-                                        0,
-                                        0,
-                                        0,
-                                        0,
-                                    ],
-                                    'total' => 0,
-                                    'week' => 1688860800,
-                                ],
-                                [
-                                    'days' => [
-                                        0,
-                                        0,
-                                        0,
-                                        0,
-                                        0,
-                                        0,
-                                        0,
-                                    ],
-                                    'total' => 0,
-                                    'week' => 1689465600,
-                                ],
-                                [
-                                    'days' => [
-                                        0,
-                                        0,
-                                        0,
-                                        0,
-                                        0,
-                                        0,
-                                        0,
-                                    ],
-                                    'total' => 0,
-                                    'week' => 1690070400,
-                                ],
-                                [
-                                    'days' => [
-                                        0,
-                                        0,
-                                        0,
-                                        0,
-                                        0,
-                                        0,
-                                        0,
-                                    ],
-                                    'total' => 0,
-                                    'week' => 1690675200,
-                                ],
-                                [
-                                    'days' => [
-                                        0,
-                                        0,
-                                        0,
-                                        0,
-                                        0,
-                                        0,
-                                        0,
-                                    ],
-                                    'total' => 0,
-                                    'week' => 1691280000,
-                                ],
-                                [
-                                    'days' => [
-                                        0,
-                                        0,
-                                        0,
-                                        0,
-                                        0,
-                                        0,
-                                        0,
-                                    ],
-                                    'total' => 0,
-                                    'week' => 1691884800,
-                                ],
-                                [
-                                    'days' => [
-                                        0,
-                                        0,
-                                        0,
-                                        0,
-                                        0,
-                                        0,
-                                        0,
-                                    ],
-                                    'total' => 0,
-                                    'week' => 1692489600,
-                                ],
-                                [
-                                    'days' => [
-                                        0,
-                                        0,
-                                        0,
-                                        0,
-                                        0,
-                                        0,
-                                        0,
-                                    ],
-                                    'total' => 0,
-                                    'week' => 1693094400,
-                                ],
-                                [
-                                    'days' => [
-                                        0,
-                                        0,
-                                        0,
-                                        0,
-                                        0,
-                                        0,
-                                        0,
-                                    ],
-                                    'total' => 0,
-                                    'week' => 1693699200,
-                                ],
-                                [
-                                    'days' => [
-                                        0,
-                                        0,
-                                        0,
-                                        0,
-                                        0,
-                                        0,
-                                        0,
-                                    ],
-                                    'total' => 0,
-                                    'week' => 1694304000,
-                                ],
-                                [
-                                    'days' => [
-                                        0,
-                                        0,
-                                        0,
-                                        0,
-                                        0,
-                                        0,
-                                        0,
-                                    ],
-                                    'total' => 0,
-                                    'week' => 1694908800,
-                                ],
-                                [
-                                    'days' => [
-                                        0,
-                                        0,
-                                        0,
-                                        0,
-                                        0,
-                                        0,
-                                        0,
-                                    ],
-                                    'total' => 0,
-                                    'week' => 1695513600,
-                                ],
-                                [
-                                    'days' => [
-                                        0,
-                                        0,
-                                        0,
-                                        0,
-                                        0,
-                                        0,
-                                        0,
-                                    ],
-                                    'total' => 0,
-                                    'week' => 1696118400,
-                                ],
-                                [
-                                    'days' => [
-                                        0,
-                                        0,
-                                        0,
-                                        0,
-                                        0,
-                                        0,
-                                        0,
-                                    ],
-                                    'total' => 0,
-                                    'week' => 1696723200,
-                                ],
-                                [
-                                    'days' => [
-                                        0,
-                                        0,
-                                        0,
-                                        0,
-                                        0,
-                                        0,
-                                        0,
-                                    ],
-                                    'total' => 0,
-                                    'week' => 1697328000,
-                                ],
-                                [
-                                    'days' => [
-                                        0,
-                                        0,
-                                        0,
-                                        0,
-                                        0,
-                                        0,
-                                        0,
-                                    ],
-                                    'total' => 0,
-                                    'week' => 1697932800,
-                                ],
-                                [
-                                    'days' => [
-                                        0,
-                                        0,
-                                        0,
-                                        0,
-                                        0,
-                                        0,
-                                        0,
-                                    ],
-                                    'total' => 0,
-                                    'week' => 1698537600,
-                                ],
-                                [
-                                    'days' => [
-                                        0,
-                                        0,
-                                        0,
-                                        0,
-                                        0,
-                                        0,
-                                        0,
-                                    ],
-                                    'total' => 0,
-                                    'week' => 1699142400,
-                                ],
-                                [
-                                    'days' => [
-                                        0,
-                                        0,
-                                        0,
-                                        0,
-                                        0,
-                                        0,
-                                        0,
-                                    ],
-                                    'total' => 0,
-                                    'week' => 1699750800,
-                                ],
-                                [
-                                    'days' => [
-                                        0,
-                                        0,
-                                        0,
-                                        0,
-                                        0,
-                                        0,
-                                        0,
-                                    ],
-                                    'total' => 0,
-                                    'week' => 1700355600,
-                                ],
-                                [
-                                    'days' => [
-                                        0,
-                                        0,
-                                        0,
-                                        0,
-                                        0,
-                                        0,
-                                        0,
-                                    ],
-                                    'total' => 0,
-                                    'week' => 1700960400,
-                                ],
-                                [
-                                    'days' => [
-                                        0,
-                                        0,
-                                        0,
-                                        0,
-                                        0,
-                                        0,
-                                        0,
-                                    ],
-                                    'total' => 0,
-                                    'week' => 1701565200,
-                                ],
-                                [
-                                    'days' => [
-                                        0,
-                                        0,
-                                        0,
-                                        0,
-                                        0,
-                                        0,
-                                        0,
-                                    ],
-                                    'total' => 0,
-                                    'week' => 1702170000,
-                                ],
-                                [
-                                    'days' => [
-                                        0,
-                                        0,
-                                        0,
-                                        0,
-                                        0,
-                                        0,
-                                        0,
-                                    ],
-                                    'total' => 0,
-                                    'week' => 1702774800,
-                                ],
-                                [
-                                    'days' => [
-                                        0,
-                                        0,
-                                        0,
-                                        0,
-                                        0,
-                                        0,
-                                        0,
-                                    ],
-                                    'total' => 0,
-                                    'week' => 1703379600,
-                                ],
-                                [
-                                    'days' => [
-                                        0,
-                                        0,
-                                        0,
-                                        0,
-                                        0,
-                                        0,
-                                        0,
-                                    ],
-                                    'total' => 0,
-                                    'week' => 1703984400,
-                                ],
-                                [
-                                    'days' => [
-                                        0,
-                                        0,
-                                        0,
-                                        0,
-                                        0,
-                                        0,
-                                        0,
-                                    ],
-                                    'total' => 0,
-                                    'week' => 1704589200,
-                                ],
-                                [
-                                    'days' => [
-                                        0,
-                                        0,
-                                        0,
-                                        0,
-                                        0,
-                                        0,
-                                        0,
-                                    ],
-                                    'total' => 0,
-                                    'week' => 1705194000,
-                                ],
-                                [
-                                    'days' => [
-                                        0,
-                                        0,
-                                        0,
-                                        0,
-                                        0,
-                                        0,
-                                        0,
-                                    ],
-                                    'total' => 0,
-                                    'week' => 1705798800,
-                                ],
-                                [
-                                    'days' => [
-                                        0,
-                                        0,
-                                        0,
-                                        0,
-                                        0,
-                                        0,
-                                        0,
-                                    ],
-                                    'total' => 0,
-                                    'week' => 1706403600,
-                                ],
-                                [
-                                    'days' => [
-                                        0,
-                                        0,
-                                        0,
-                                        0,
-                                        0,
-                                        0,
-                                        0,
-                                    ],
-                                    'total' => 0,
-                                    'week' => 1707008400,
-                                ],
-                                [
-                                    'days' => [
-                                        0,
-                                        0,
-                                        0,
-                                        0,
-                                        0,
-                                        0,
-                                        0,
-                                    ],
-                                    'total' => 0,
-                                    'week' => 1707613200,
-                                ],
-                                [
-                                    'days' => [
-                                        0,
-                                        0,
-                                        0,
-                                        0,
-                                        0,
-                                        0,
-                                        0,
-                                    ],
-                                    'total' => 0,
-                                    'week' => 1708218000,
-                                ],
-                                [
-                                    'days' => [
-                                        0,
-                                        0,
-                                        0,
-                                        0,
-                                        0,
-                                        0,
-                                        0,
-                                    ],
-                                    'total' => 0,
-                                    'week' => 1708822800,
-                                ],
-                                [
-                                    'days' => [
-                                        0,
-                                        0,
-                                        0,
-                                        0,
-                                        0,
-                                        0,
-                                        0,
-                                    ],
-                                    'total' => 0,
-                                    'week' => 1709427600,
-                                ],
-                                [
-                                    'days' => [
-                                        0,
-                                        0,
-                                        0,
-                                        0,
-                                        0,
-                                        0,
-                                        0,
-                                    ],
-                                    'total' => 0,
-                                    'week' => 1710032400,
-                                ],
-                                [
-                                    'days' => [
-                                        0,
-                                        0,
-                                        0,
-                                        0,
-                                        0,
-                                        0,
-                                        0,
-                                    ],
-                                    'total' => 0,
-                                    'week' => 1710633600,
-                                ],
-                                [
-                                    'days' => [
-                                        0,
-                                        0,
-                                        0,
-                                        0,
-                                        0,
-                                        0,
-                                        0,
-                                    ],
-                                    'total' => 0,
-                                    'week' => 1711238400,
-                                ],
-                                [
-                                    'days' => [
-                                        0,
-                                        0,
-                                        0,
-                                        0,
-                                        0,
-                                        0,
-                                        0,
-                                    ],
-                                    'total' => 0,
-                                    'week' => 1711843200,
-                                ],
-                                [
-                                    'days' => [
-                                        0,
-                                        0,
-                                        0,
-                                        1,
-                                        0,
-                                        0,
-                                        1,
-                                    ],
-                                    'total' => 2,
-                                    'week' => 1712448000,
-                                ],
-                                [
-                                    'days' => [
-                                        11,
-                                        2,
-                                        2,
-                                        3,
-                                        0,
-                                        0,
-                                        0,
-                                    ],
-                                    'total' => 18,
-                                    'week' => 1713052800,
-                                ],
-                                [
-                                    'days' => [
-                                        0,
-                                        3,
-                                        0,
-                                        0,
-                                        0,
-                                        0,
-                                        0,
-                                    ],
-                                    'total' => 3,
-                                    'week' => 1713657600,
-                                ],
-                                [
-                                    'days' => [
-                                        4,
-                                        0,
-                                        0,
-                                        0,
-                                        0,
-                                        0,
-                                        0,
-                                    ],
-                                    'total' => 4,
-                                    'week' => 1714262400,
-                                ],
-                                [
-                                    'days' => [
-                                        0,
-                                        0,
-                                        0,
-                                        0,
-                                        0,
-                                        0,
-                                        0,
-                                    ],
-                                    'total' => 0,
-                                    'week' => 1714867200,
-                                ],
-                                [
-                                    'days' => [
-                                        0,
-                                        0,
-                                        0,
-                                        0,
-                                        0,
-                                        0,
-                                        0,
-                                    ],
-                                    'total' => 0,
-                                    'week' => 1715472000,
-                                ],
-                                [
-                                    'days' => [
-                                        0,
-                                        0,
-                                        0,
-                                        0,
-                                        3,
-                                        0,
-                                        0,
-                                    ],
-                                    'total' => 3,
-                                    'week' => 1716076800,
+                                    'node_id' => 'REF_kwDOLsRAD7ByZWZzL3RhZ3MvdjAuMS4w',
                                 ],
                             ],
                         ],
