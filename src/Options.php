@@ -1,4 +1,5 @@
 <?php
+
 declare(strict_types=1);
 
 namespace Holgerk\GuzzleReplay;
@@ -7,13 +8,13 @@ class Options
 {
     /** @var ?callable(int $distance):RecordName */
     public static $globalRecordNameFactory = null;
-    
+
     /** @var ?callable():RecorderInterface */
     public static $globalRecorderFactory = null;
-    
+
     /** @var ?callable(RequestModel):void */
     public static $globalRequestTransformer = null;
-    
+
     /** @var ?callable(ResponseModel):void */
     public static $globalResponseTransformer = null;
 
@@ -79,5 +80,4 @@ class Options
         static::$globalRequestTransformer = null;
         static::$globalResponseTransformer = null;
     }
-
 }

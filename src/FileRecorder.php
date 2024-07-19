@@ -1,4 +1,5 @@
 <?php
+
 declare(strict_types=1);
 
 namespace Holgerk\GuzzleReplay;
@@ -9,6 +10,7 @@ use Symfony\Component\VarExporter\VarExporter;
 class FileRecorder implements RecorderInterface
 {
     private ?Recording $recording;
+
     private ?RecordName $recordName;
 
     public function startRecord(RecordName $recordName): Recording
@@ -24,7 +26,7 @@ class FileRecorder implements RecorderInterface
         $this->recordName = $recordName;
         $recordingFileName = $this->getRecordingFileName();
         $recordingExists = file_exists($recordingFileName);
-        $this->recording = (!$recordingExists)
+        $this->recording = (! $recordingExists)
             ? new Recording()
             : include $recordingFileName;
         return $this->recording;
@@ -59,5 +61,4 @@ class FileRecorder implements RecorderInterface
         $recordingFileName = sprintf('%s/%s.php', $dir, $this->recordName->getLongName());
         return $recordingFileName;
     }
-
 }

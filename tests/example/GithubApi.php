@@ -7,12 +7,15 @@ use GuzzleHttp\RequestOptions;
 
 class GithubApi
 {
-    public function __construct(private Client $client) {}
+    public function __construct(
+        private Client $client
+    ) {}
 
     public function getTagNames(): array
     {
         $r = $this->client->get(
-            'https://api.github.com/repos/holgerk/guzzle-replay/tags', [
+            'https://api.github.com/repos/holgerk/guzzle-replay/tags',
+            [
                 RequestOptions::HEADERS => [
                     'Accept' => 'application/vnd.github+json',
                     'Authorization' => 'Bearer ' . $_ENV['GITHUB_TOKEN'],

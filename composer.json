@@ -35,7 +35,8 @@
         "vimeo/psalm": "^5",
         "vlucas/phpdotenv": "^5.6",
         "illuminate/collections": "^10.48",
-        "illuminate/http": "^10.48"
+        "illuminate/http": "^10.48",
+        "symplify/easy-coding-standard": "^12.3"
     },
     "scripts": {
         "test:unit": "phpunit tests"

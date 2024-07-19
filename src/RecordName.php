@@ -9,8 +9,11 @@ namespace Holgerk\GuzzleReplay;
 class RecordName
 {
     private string $testClassName;
+
     private string $testMethodName;
+
     private string $suffix = 'guzzleRecording';
+
     private string $prefix = 'guzzleRecording';
 
     private function __construct() {}

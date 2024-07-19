@@ -1,4 +1,5 @@
 <?php
+
 declare(strict_types=1);
 
 namespace Holgerk\GuzzleReplay;
@@ -9,6 +10,7 @@ use Symfony\Component\VarExporter\VarExporter;
 class MethodRecorder implements RecorderInterface
 {
     private ?Recording $recording;
+
     private ?RecordName $recordName;
 
     public function startRecord(RecordName $recordName): Recording
@@ -24,7 +26,7 @@ class MethodRecorder implements RecorderInterface
         $this->recordName = $recordName;
         $class = new ReflectionClass($this->recordName->getTestClassName());
         $hasMethod = $class->hasMethod($this->recordName->getShortName());
-        $this->recording = (!$hasMethod)
+        $this->recording = (! $hasMethod)
             ? new Recording()
             : call_user_func($this->recordName->getTestClassName() . '::' . $this->recordName->getShortName());
         return $this->recording;
@@ -79,5 +81,4 @@ class MethodRecorder implements RecorderInterface
         );
         file_put_contents($class->getFileName(), implode('', $lines));
     }
-
 }

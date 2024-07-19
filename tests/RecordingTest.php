@@ -35,14 +35,14 @@ class RecordingTest extends TestCase
         }
         assertGolden(
             "\n"
-                .'| Replay for this request was already used:'."\n"
-                .'| -----------------------------------------'."\n"
-                .'| - Request '."\n"
-                .'|     method: GET'."\n"
-                .'|     uri: '."\n"
-                .'|     headers: []'."\n"
-                .'|     body: '."\n"
-                .'|     version: ',
+                . '| Replay for this request was already used:' . "\n"
+                . '| -----------------------------------------' . "\n"
+                . '| - Request ' . "\n"
+                . '|     method: GET' . "\n"
+                . '|     uri: ' . "\n"
+                . '|     headers: []' . "\n"
+                . '|     body: ' . "\n"
+                . '|     version: ',
             $message
         );
     }
@@ -125,7 +125,4 @@ class RecordingTest extends TestCase
             $message
         );
     }
-
-
-
 }

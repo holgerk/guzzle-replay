@@ -1,4 +1,5 @@
 <?php
+
 declare(strict_types=1);
 
 namespace Holgerk\GuzzleReplay;
@@ -43,6 +44,7 @@ final class ResponseModel
             $data['reason'],
         );
     }
+
     /**
      * @return array<string,mixed>
      */
@@ -78,7 +80,7 @@ final class ResponseModel
             reason: $this->reason,
         );
     }
-    
+
     public function __toString(): string
     {
         $headers = json_encode($this->headers);

@@ -15,5 +15,4 @@ class RecordNameTest extends TestCase
         assertGolden('guzzleRecording_testInflect', $recordName->getShortName());
         assertGolden('RecordNameTest_testInflect_guzzleRecording', $recordName->getLongName());
     }
-
 }

@@ -1,4 +1,5 @@
 <?php
+
 // GENERATED - DO NOT EDIT
 return \Holgerk\GuzzleReplay\Recording::fromArray(
     [

@@ -18,16 +18,16 @@ class RequestModelTest extends TestCase
                 ]
             ]
         ]);
-        
+
         $request->replaceString('find_me', 'found_you');
-        
+
         assertGolden(
-            'Request '."\n"
-                .'    method: GET'."\n"
-                .'    uri: http://X_found_you_X'."\n"
-                .'    headers: {"some-header":["X found_you X"]}'."\n"
-                .'    body: X found_you X'."\n"
-                .'    version: ',
+            'Request ' . "\n"
+                . '    method: GET' . "\n"
+                . '    uri: http://X_found_you_X' . "\n"
+                . '    headers: {"some-header":["X found_you X"]}' . "\n"
+                . '    body: X found_you X' . "\n"
+                . '    version: ',
             $request->__toString()
         );
     }

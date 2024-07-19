@@ -20,7 +20,7 @@ class ResponseModelTest extends TestCase
 
         self::assertEquals(42, $response->toArray()['decodedBody']['property']);
     }
-    
+
     public function testReplaceString(): void
     {
         $response = makeResponse([
@@ -31,16 +31,16 @@ class ResponseModelTest extends TestCase
                 ]
             ]
         ]);
-        
+
         $response->replaceString('find_me', 'found_you');
-        
+
         assertGolden(
-            'Request '."\n"
-                .'    status: 200'."\n"
-                .'    headers: {"some-header":["X found_you X"]}'."\n"
-                .'    body: X found_you X'."\n"
-                .'    version: '."\n"
-                .'    reason: ',
+            'Request ' . "\n"
+                . '    status: 200' . "\n"
+                . '    headers: {"some-header":["X found_you X"]}' . "\n"
+                . '    body: X found_you X' . "\n"
+                . '    version: ' . "\n"
+                . '    reason: ',
             $response->__toString()
         );
     }

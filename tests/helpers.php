@@ -3,7 +3,6 @@
 use Holgerk\GuzzleReplay\RequestModel;
 use Holgerk\GuzzleReplay\ResponseModel;
 
-
 /** @param array{method?: string, uri?: string, headers?: array, body?: string, version?: string} $data */
 function makeRequest(array $data = []): RequestModel
 {

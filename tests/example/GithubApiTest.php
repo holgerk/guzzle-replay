@@ -10,7 +10,6 @@ use Holgerk\GuzzleReplay\GuzzleReplay;
 use Holgerk\GuzzleReplay\RequestModel;
 use Illuminate\Support\Facades\Http;
 use PHPUnit\Framework\TestCase;
-
 use function Holgerk\AssertGolden\assertGolden;
 
 class GithubApiTest extends TestCase
@@ -21,6 +20,9 @@ class GithubApiTest extends TestCase
         // load env with GITHUB_TOKEN
         if (file_exists(dirname(__DIR__, 2) . '/.env')) {
             Dotenv::createImmutable(dirname(__DIR__, 2))->load();
+        }
+        if (! isset($_ENV['GITHUB_TOKEN'])) {
+            $_ENV['GITHUB_TOKEN'] = 'test-token';
         }
     }
 
@@ -40,13 +42,15 @@ class GithubApiTest extends TestCase
     public function testSimple(): void
     {
         $client = new Client();
-        $middleware = GuzzleReplay::create(Mode::Replay, Options::create()
-            ->setRequestTransformer(static function (RequestModel $requestModel) {
-                // mask authorization token, to not leak sensitive data
-                $requestModel->replaceString($_ENV['GITHUB_TOKEN'], 'XXX');
-                // or you can unset the header 
-                //unset($requestModel->headers['Authorization']);
-            })
+        $middleware = GuzzleReplay::create(
+            Mode::Replay,
+            Options::create()
+                ->setRequestTransformer(static function (RequestModel $requestModel) {
+                    // mask authorization token, to not leak sensitive data
+                    $requestModel->replaceString($_ENV['GITHUB_TOKEN'], 'XXX');
+                    // or you can unset the header 
+                    //unset($requestModel->headers['Authorization']);
+                })
         );
         $middleware->inject($client);
         $api = new GithubApi($client);
@@ -233,9 +237,9 @@ class GithubApiTest extends TestCase
                                     'true',
                                 ],
                             ],
-                            'body' => '{'."\n"
-                                .'  "uuid": "d7e0d101-16ae-4250-9c2c-97d10dc9e0fe"'."\n"
-                                .'}'."\n",
+                            'body' => '{' . "\n"
+                                . '  "uuid": "d7e0d101-16ae-4250-9c2c-97d10dc9e0fe"' . "\n"
+                                . '}' . "\n",
                             'version' => '1.1',
                             'reason' => 'OK',
                             'decodedBody' => [

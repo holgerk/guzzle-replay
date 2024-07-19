@@ -43,7 +43,7 @@ class GuzzleReplayTest extends TestCase
     public static function record_test_dataProvider(): array
     {
         return [
-            'case NewRecording'    => ['className' => 'NewRecording'],
+            'case NewRecording' => ['className' => 'NewRecording'],
             'case UpdateRecording' => ['className' => 'UpdateRecording'],
         ];
     }
@@ -86,11 +86,13 @@ class GuzzleReplayTest extends TestCase
         $recorder = new TestRecorder();
 
         $stack = HandlerStack::create();
-        $middleware = GuzzleReplay::create(Mode::Record, Options::create()
-            ->setRequestTransformer(function (RequestModel $requestModel) {
-                $requestModel->uri = str_replace('localhost', 'host', $requestModel->uri);
-            })
-            ->setRecorder($recorder)
+        $middleware = GuzzleReplay::create(
+            Mode::Record,
+            Options::create()
+                ->setRequestTransformer(function (RequestModel $requestModel) {
+                    $requestModel->uri = str_replace('localhost', 'host', $requestModel->uri);
+                })
+                ->setRecorder($recorder)
         );
         $stack->push($middleware);
         $client = new Client(['handler' => $stack]);
@@ -106,8 +108,10 @@ class GuzzleReplayTest extends TestCase
     public function testCustomRecordName(): void
     {
         $stack = HandlerStack::create();
-        $middleware = GuzzleReplay::create(Mode::Replay, Options::create()
-            ->setRecordName(RecordName::make(__CLASS__, __FUNCTION__))
+        $middleware = GuzzleReplay::create(
+            Mode::Replay,
+            Options::create()
+                ->setRecordName(RecordName::make(__CLASS__, __FUNCTION__))
         );
         $stack->push($middleware);
         $client = new Client(['handler' => $stack]);
@@ -174,9 +178,9 @@ class GuzzleReplayTest extends TestCase
                                     'true',
                                 ],
                             ],
-                            'body' => '{'."\n"
-                                .'  "uuid": "254c7adc-456a-4f6d-8255-dc752396b82b"'."\n"
-                                .'}'."\n",
+                            'body' => '{' . "\n"
+                                . '  "uuid": "254c7adc-456a-4f6d-8255-dc752396b82b"' . "\n"
+                                . '}' . "\n",
                             'version' => '1.1',
                             'reason' => 'OK',
                         ],
@@ -232,9 +236,9 @@ class GuzzleReplayTest extends TestCase
                                     'true',
                                 ],
                             ],
-                            'body' => '{'."\n"
-                                .'  "uuid": "e418681e-9d38-4d69-b661-584a19d6861d"'."\n"
-                                .'}'."\n",
+                            'body' => '{' . "\n"
+                                . '  "uuid": "e418681e-9d38-4d69-b661-584a19d6861d"' . "\n"
+                                . '}' . "\n",
                             'version' => '1.1',
                             'reason' => 'OK',
                         ],
@@ -290,9 +294,9 @@ class GuzzleReplayTest extends TestCase
                                     'true',
                                 ],
                             ],
-                            'body' => '{'."\n"
-                                .'  "uuid": "b32f97f9-db0d-4614-ba1e-a777c02864c3"'."\n"
-                                .'}'."\n",
+                            'body' => '{' . "\n"
+                                . '  "uuid": "b32f97f9-db0d-4614-ba1e-a777c02864c3"' . "\n"
+                                . '}' . "\n",
                             'version' => '1.1',
                             'reason' => 'OK',
                         ],
@@ -301,5 +305,4 @@ class GuzzleReplayTest extends TestCase
             ]
         );
     }
-
 }

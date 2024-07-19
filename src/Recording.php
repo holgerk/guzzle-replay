@@ -1,4 +1,5 @@
 <?php
+
 declare(strict_types=1);
 
 namespace Holgerk\GuzzleReplay;
@@ -92,7 +93,7 @@ final class Recording
         );
 
         $differ = new Differ($builder);
-        $diff = trim($differ->diff((string)$sortedRecords[0]->requestModel, (string)$requestModel));
+        $diff = trim($differ->diff((string) $sortedRecords[0]->requestModel, (string) $requestModel));
 
         $message = <<<EOS
 
@@ -156,7 +157,9 @@ final class Recording
             $differenceByRecord[spl_object_id($record)] = $difference;
         }
         $sortedRecords = $this->records;
-        usort($sortedRecords, fn(Record $a, Record $b) =>
+        usort(
+            $sortedRecords,
+            fn(Record $a, Record $b) =>
             $differenceByRecord[spl_object_id($a)] <=> $differenceByRecord[spl_object_id($b)]
         );
         return $sortedRecords;

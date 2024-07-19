@@ -1,4 +1,5 @@
 <?php
+
 declare(strict_types=1);
 
 namespace Holgerk\GuzzleReplay;
@@ -12,6 +13,7 @@ use Psr\Http\Message\ResponseInterface;
 final class GuzzleReplay
 {
     private Recording $recording;
+
     private Options $options;
 
     public static function create(Mode $mode, ?Options $options = null): self
@@ -39,7 +41,9 @@ final class GuzzleReplay
         );
     }
 
-    private function __construct(private readonly Mode $mode) {}
+    private function __construct(
+        private readonly Mode $mode
+    ) {}
 
     private function initializeRecording(): void
     {
@@ -49,7 +53,7 @@ final class GuzzleReplay
             $this->recording = $this->options->recorder->startRecord($this->options->recordName);
         }
     }
-    
+
     public function __invoke(callable $next): callable
     {
         return function (RequestInterface $request, array $options) use ($next) {
@@ -79,5 +83,4 @@ final class GuzzleReplay
     {
         return $this->options;
     }
-
 }
