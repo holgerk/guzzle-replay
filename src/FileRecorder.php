@@ -46,6 +46,7 @@ class FileRecorder implements RecorderInterface
         $recording = implode("\n    ", explode("\n", $recording));
         $fileContent = <<<EOS
         <?php
+        
         // GENERATED - DO NOT EDIT
         return \\$recordingClass::fromArray(
             $recording

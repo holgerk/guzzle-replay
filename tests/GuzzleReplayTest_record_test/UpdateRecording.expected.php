@@ -67,9 +67,9 @@ class UpdateRecording {
                                     'PHP',
                                 ],
                             ],
-                            'body' => '{' . "\n"
-                                . '    "queryParam": "42"' . "\n"
-                                . '}',
+                            'body' => '{'."\n"
+                                .'    "queryParam": "42"'."\n"
+                                .'}',
                             'version' => '1.1',
                             'reason' => 'OK',
                             'decodedBody' => [

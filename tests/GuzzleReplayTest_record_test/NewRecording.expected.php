@@ -26,7 +26,6 @@ class NewRecording {
         $client->get('http://localhost:8000/?queryParam=42');
         return $middleware;
     }
-
     public static function guzzleRecording_executeTest(): \Holgerk\GuzzleReplay\Recording
     {
         // GENERATED - DO NOT EDIT
@@ -67,9 +66,9 @@ class NewRecording {
                                     'PHP',
                                 ],
                             ],
-                            'body' => '{' . "\n"
-                                . '    "queryParam": "42"' . "\n"
-                                . '}',
+                            'body' => '{'."\n"
+                                .'    "queryParam": "42"'."\n"
+                                .'}',
                             'version' => '1.1',
                             'reason' => 'OK',
                             'decodedBody' => [

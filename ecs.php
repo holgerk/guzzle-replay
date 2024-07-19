@@ -6,9 +6,17 @@ use PhpCsFixer\Fixer\Import\NoUnusedImportsFixer;
 use Symplify\EasyCodingStandard\Config\ECSConfig;
 
 return ECSConfig::configure()
+
     ->withPaths([
         __DIR__ . '/src',
         __DIR__ . '/tests',
+    ])
+    
+    ->withSkip([
+        '*.test.php',
+        '*.expected.php',
+        '*.expected.php',
+        '*guzzleRecording.php',
     ])
 
     // add a single rule
