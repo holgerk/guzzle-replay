@@ -1,5 +1,9 @@
 # guzzle-replay middleware
 
+![GitHub Release](https://img.shields.io/github/v/release/holgerk/guzzle-replay)
+![GitHub Actions Workflow Status](https://img.shields.io/github/actions/workflow/status/holgerk/guzzle-replay/tests.yml)
+![Packagist Downloads](https://img.shields.io/packagist/dt/holgerk/guzzle-replay)
+
 Record guzzle requests and have them replayed during next runs.
 
 
