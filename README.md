@@ -7,7 +7,7 @@
 Record guzzle requests and have them replayed during next runs.
 
 
-### Usage
+## Usage
 ```php
 use GuzzleHttp\Client;
 use Holgerk\GuzzleReplay\Mode;
@@ -21,7 +21,7 @@ $middleware->inject($client);
 $api = new GithubApi($client);
 ```
 
-### Usage with Laravel Http Facade
+## Usage with Laravel Http Facade
 ```php
 use Illuminate\Support\Facades\Http;
 use Holgerk\GuzzleReplay\GuzzleReplay;
@@ -29,14 +29,14 @@ use Holgerk\GuzzleReplay\Mode;
 Http::globalMiddleware(GuzzleReplay::create(Mode::Replay));
 ```
 
-### Always recording to file and not to a method
+## Always recording to file and not to a method
 ```php
 use Holgerk\GuzzleReplay\FileRecorder;
 use Holgerk\GuzzleReplay\Options;
 Options::$globalRecorderFactory = fn() => new FileRecorder();
 ```
 
-### Masking sensistive data
+## Masking sensistive data
 ```php
 $middleware = GuzzleReplay::create(Mode::Replay, Options::create()
     ->setRequestTransformer(static function (RequestModel $requestModel) {
@@ -48,7 +48,11 @@ $middleware = GuzzleReplay::create(Mode::Replay, Options::create()
 );
 ```
 
-### TODOS
+## License
+
+The MIT License (MIT). Please see [License File](LICENSE) for more information.
+
+## TODOS
 
 - Document recorded request transformer
   - used to mask sensitive data
