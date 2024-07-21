@@ -13,12 +13,12 @@ use GuzzleHttp\Client;
 use Holgerk\GuzzleReplay\Mode;
 use Holgerk\GuzzleReplay\GuzzleReplay;
 
+$guzzleClient = new Client();
 // create middleware either in recording or in replay mode
 //$middleware = GuzzleReplay::create(Mode::Record);
 $middleware = GuzzleReplay::create(Mode::Replay);
-$client = new Client();
-$middleware->inject($client);
-$api = new GithubApi($client);
+$middleware->inject($guzzleClient);
+$apiClient = new GithubApi($guzzleClient);
 ```
 
 ## Example
