@@ -12,17 +12,24 @@ use Psr\Http\Message\ResponseInterface;
 
 final class GuzzleReplay
 {
-    private Recording $recording;
+    public const MODE_RECORD = Mode::Record;
+    public const MODE_REPLAY = Mode::Replay;
 
-    private Options $options;
-
+    private function __construct(
+        private readonly Mode $mode,
+        private readonly Recording $recording,
+        private readonly Options $options,
+    ) {}
+    
     public static function create(Mode $mode, ?Options $options = null): self
     {
-        $self = new self($mode);
-        $self->options = $options ?? self::makeOptions();
-        $self->initializeRecording();
-
-        return $self;
+        $options ??= self::makeOptions();
+        if ($mode === Mode::Replay) {
+            $recording = $options->recorder->startReplay($options->recordName);
+        } else {
+            $recording = $options->recorder->startRecord($options->recordName);
+        }
+        return new self($mode, $recording, $options);
     }
 
     public function inject(Client $client): self
@@ -33,25 +40,17 @@ final class GuzzleReplay
 
         return $this;
     }
+    
+    public function getOptions(): Options
+    {
+        return $this->options;
+    }
 
     private static function makeOptions(): Options
     {
         return Options::create()->setRecordName(
             (Options::$globalRecordNameFactory ?? fn(int $distance) => RecordName::inflect($distance))(4)
         );
-    }
-
-    private function __construct(
-        private readonly Mode $mode
-    ) {}
-
-    private function initializeRecording(): void
-    {
-        if ($this->mode === Mode::Replay) {
-            $this->recording = $this->options->recorder->startReplay($this->options->recordName);
-        } else {
-            $this->recording = $this->options->recorder->startRecord($this->options->recordName);
-        }
     }
 
     public function __invoke(callable $next): callable
@@ -77,10 +76,5 @@ final class GuzzleReplay
                 }
             );
         };
-    }
-
-    public function getOptions(): Options
-    {
-        return $this->options;
     }
 }

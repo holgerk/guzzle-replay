@@ -32,7 +32,7 @@ class GithubApiTest extends TestCase
         // this is normally done by laravels dependency container
         Http::swap(new \Illuminate\Http\Client\Factory());
 
-        Http::globalMiddleware(GuzzleReplay::create(Mode::Replay));
+        Http::globalMiddleware(GuzzleReplay::create(GuzzleReplay::MODE_REPLAY));
         assertGolden(
             ['uuid' => 'd7e0d101-16ae-4250-9c2c-97d10dc9e0fe'],
             Http::get('https://httpbin.org/uuid')->json()
@@ -43,7 +43,7 @@ class GithubApiTest extends TestCase
     {
         $client = new Client();
         $middleware = GuzzleReplay::create(
-            Mode::Replay,
+            GuzzleReplay::MODE_REPLAY,
             Options::create()
                 ->setRequestTransformer(static function (RequestModel $requestModel) {
                     // mask authorization token, to not leak sensitive data
@@ -52,6 +52,7 @@ class GithubApiTest extends TestCase
                     //unset($requestModel->headers['Authorization']);
                 })
         );
+        
         $middleware->inject($client);
         $api = new GithubApi($client);
         assertGolden(['v0.1.0'], $api->getTagNames());
