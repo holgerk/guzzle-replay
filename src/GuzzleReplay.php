@@ -13,6 +13,7 @@ use Psr\Http\Message\ResponseInterface;
 final class GuzzleReplay
 {
     public const MODE_RECORD = Mode::Record;
+
     public const MODE_REPLAY = Mode::Replay;
 
     private function __construct(
@@ -20,7 +21,7 @@ final class GuzzleReplay
         private readonly Recording $recording,
         private readonly Options $options,
     ) {}
-    
+
     public static function create(Mode $mode, ?Options $options = null): self
     {
         $options ??= self::makeOptions();
@@ -40,7 +41,7 @@ final class GuzzleReplay
 
         return $this;
     }
-    
+
     public function getOptions(): Options
     {
         return $this->options;

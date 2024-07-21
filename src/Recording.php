@@ -28,6 +28,9 @@ final class Recording
         $this->records[] = $record;
     }
 
+    /**
+     * @return array<string,array>
+     */
     public function toArray(): array
     {
         return [
@@ -165,6 +168,9 @@ final class Recording
         return $sortedRecords;
     }
 
+    /**
+     * @return Record[]
+     */
     public function getRecords(): array
     {
         return $this->records;

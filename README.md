@@ -44,6 +44,7 @@ $middleware = GuzzleReplay::create(Mode::Replay, Options::create()
         $requestModel->replaceString($_ENV['GITHUB_TOKEN'], 'XXX');
         // or you can unset the header 
         //unset($requestModel->headers['Authorization']);
+        //$requestModel->removeHeader('content-length');
     })
 );
 ```

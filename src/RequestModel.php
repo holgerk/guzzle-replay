@@ -40,6 +40,9 @@ final class RequestModel
         );
     }
 
+    /**
+     * @return array<string,mixed>
+     */
     public function toArray(): array
     {
         return [
@@ -72,6 +75,18 @@ final class RequestModel
             foreach ($values as &$value) {
                 $value = str_replace($search, $replace, $value);
             }
+        }
+    }
+
+    /**
+     * Remove header case-insensitivly
+     */
+    public function removeHeader(string $headerName): void
+    {
+        $headerName = strtolower($headerName);
+        $headerNames = array_keys($this->headers);
+        foreach (array_keys(array_filter($headerNames, fn ($h) => strtolower($h) === $headerName)) as $index) {
+            unset($this->headers[$headerNames[$index]]);
         }
     }
 }

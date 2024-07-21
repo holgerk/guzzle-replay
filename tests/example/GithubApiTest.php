@@ -4,7 +4,6 @@ namespace Holgerk\GuzzleReplay\Tests\example;
 
 use Dotenv\Dotenv;
 use GuzzleHttp\Client;
-use Holgerk\GuzzleReplay\Mode;
 use Holgerk\GuzzleReplay\Options;
 use Holgerk\GuzzleReplay\GuzzleReplay;
 use Holgerk\GuzzleReplay\RequestModel;
@@ -52,7 +51,7 @@ class GithubApiTest extends TestCase
                     //unset($requestModel->headers['Authorization']);
                 })
         );
-        
+
         $middleware->inject($client);
         $api = new GithubApi($client);
         assertGolden(['v0.1.0'], $api->getTagNames());

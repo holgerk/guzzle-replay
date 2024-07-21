@@ -31,4 +31,28 @@ class RequestModelTest extends TestCase
             $request->__toString()
         );
     }
+
+    public function testRemoveHeader(): void
+    {
+        $r = makeRequest([
+            'headers' => [
+                'Keep-Me' => ['123'],
+                'Remove-Me' => ['123'],
+                'keep-me' => ['123'],
+                'remove-me' => ['123'],
+            ]
+        ]);
+        $r->removeHeader('reMove-Me');
+        assertGolden(
+            [
+                'Keep-Me' => [
+                    '123',
+                ],
+                'keep-me' => [
+                    '123',
+                ],
+            ],
+            $r->headers
+        );
+    }
 }
