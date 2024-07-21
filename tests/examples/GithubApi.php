@@ -1,6 +1,6 @@
 <?php
 
-namespace Holgerk\GuzzleReplay\Tests\example;
+namespace Holgerk\GuzzleReplay\Tests\examples;
 
 use GuzzleHttp\Client;
 use GuzzleHttp\RequestOptions;
