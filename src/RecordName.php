@@ -10,7 +10,7 @@ class RecordName
 {
     private string $testClassName;
 
-    private string $testMethodName;
+    public string $testMethodName;
 
     private string $suffix = 'guzzleRecording';
 

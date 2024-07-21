@@ -4,7 +4,7 @@ namespace Holgerk\GuzzleReplay\Tests\examples;
 
 use GuzzleHttp\Client;
 
-class SimpleApi
+class SimpleApiClient
 {
     public function __construct(
         private Client $client
@@ -17,5 +17,14 @@ class SimpleApi
             ->getBody()
             ->getContents();
         return json_decode($content, true)['uuid'];
+    }
+
+    public function getStatusCode(int $code): string
+    {
+        $response = $this->client->get(
+            'https://httpbin.org/status/' . $code,
+            ['http_errors' => false]
+        );
+        return $response->getStatusCode();
     }
 }

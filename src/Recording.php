@@ -45,7 +45,8 @@ final class Recording
             throw new NoRecordingExistsException(
                 "\n| No records were found.\n"
                 . "| Maybe you forgot to record.\n"
-                . "| -> GuzzleReplay::inject(\$client, Mode::Record).\n"
+                . "| > \$middleware = GuzzleReplay::create(GuzzleReplay::MODE_RECORD);\n"
+                . "| > \$middleware->inject(\$guzzleClient);\n"
             );
         }
 

@@ -23,11 +23,11 @@ $api = new GithubApi($client);
 
 ## Example
 
-*SimpleApi.php*
+*SimpleApiClient.php*
 ```php
 use GuzzleHttp\Client;
 
-class SimpleApi
+class SimpleApiClient
 {
     public function __construct(private Client $client) {}
 
@@ -42,30 +42,38 @@ class SimpleApi
 }
 ```
 
-*SimpleApiTest.php*
+*SimpleApiClientTest.php*
 ```php
 use GuzzleHttp\Client;
 use Holgerk\GuzzleReplay\GuzzleReplay;
 use PHPUnit\Framework\TestCase;
 use function PHPUnit\Framework\assertEquals;
 
-class SimpleApiTest extends TestCase
+class SimpleApiClientTest extends TestCase
 {
     public function testGetUuid(): void
     {
         // GIVEN
-        $client = new Client();
+        $guzzleClient = new Client();
         $middleware = GuzzleReplay::create(GuzzleReplay::MODE_REPLAY);
-        $middleware->inject($client);
+        $middleware->inject($guzzleClient);
 
         // WHEN
-        $api = new SimpleApi($client);
-        $uuid = $api->getUuid();
+        $apiClient = new SimpleApiClient($guzzleClient);
+        $firstUuid = $apiClient->getUuid();
+        $secondUuid = $apiClient->getUuid();
 
         // THEN
-        assertEquals('e05cdd05-879d-45bc-94f2-ddefa584822f', $uuid);
+        assertEquals('44a2199c-42fa-4394-abd4-1c64d3854f5d', $firstUuid);
+        assertEquals('ce11a7fb-ebac-48db-99c3-7ab2a2d8dbec', $secondUuid);
     }
-
+    
+    // - This method is generated on first recording and updated on
+    //   following recordings. 
+    // - It contains all responses and requests that happen during
+    //   the recording.
+    // - The name of the method is composed of: "guzzleRecording_" and the
+    //   name of the executing test method.
     public static function guzzleRecording_testGetUuid(): \Holgerk\GuzzleReplay\Recording
     {
         // GENERATED - DO NOT EDIT
@@ -91,7 +99,7 @@ class SimpleApiTest extends TestCase
                             'status' => 200,
                             'headers' => [
                                 'Date' => [
-                                    'Sun, 21 Jul 2024 16:26:25 GMT',
+                                    'Sun, 21 Jul 2024 19:25:07 GMT',
                                 ],
                                 'Content-Type' => [
                                     'application/json',
@@ -112,13 +120,63 @@ class SimpleApiTest extends TestCase
                                     'true',
                                 ],
                             ],
-                            'body' => '{' . "\n"
-                                . '  "uuid": "e05cdd05-879d-45bc-94f2-ddefa584822f"' . "\n"
-                                . '}' . "\n",
+                            'body' => '{'."\n"
+                                .'  "uuid": "44a2199c-42fa-4394-abd4-1c64d3854f5d"'."\n"
+                                .'}'."\n",
                             'version' => '1.1',
                             'reason' => 'OK',
                             'decodedBody' => [
-                                'uuid' => 'e05cdd05-879d-45bc-94f2-ddefa584822f',
+                                'uuid' => '44a2199c-42fa-4394-abd4-1c64d3854f5d',
+                            ],
+                        ],
+                    ],
+                    [
+                        'requestModel' => [
+                            'method' => 'GET',
+                            'uri' => 'https://httpbin.org/uuid',
+                            'headers' => [
+                                'User-Agent' => [
+                                    'GuzzleHttp/7',
+                                ],
+                                'Host' => [
+                                    'httpbin.org',
+                                ],
+                            ],
+                            'body' => '',
+                            'version' => '1.1',
+                        ],
+                        'responseModel' => [
+                            'status' => 200,
+                            'headers' => [
+                                'Date' => [
+                                    'Sun, 21 Jul 2024 19:25:07 GMT',
+                                ],
+                                'Content-Type' => [
+                                    'application/json',
+                                ],
+                                'Content-Length' => [
+                                    '53',
+                                ],
+                                'Connection' => [
+                                    'keep-alive',
+                                ],
+                                'Server' => [
+                                    'gunicorn/19.9.0',
+                                ],
+                                'Access-Control-Allow-Origin' => [
+                                    '*',
+                                ],
+                                'Access-Control-Allow-Credentials' => [
+                                    'true',
+                                ],
+                            ],
+                            'body' => '{'."\n"
+                                .'  "uuid": "ce11a7fb-ebac-48db-99c3-7ab2a2d8dbec"'."\n"
+                                .'}'."\n",
+                            'version' => '1.1',
+                            'reason' => 'OK',
+                            'decodedBody' => [
+                                'uuid' => 'ce11a7fb-ebac-48db-99c3-7ab2a2d8dbec',
                             ],
                         ],
                     ],
@@ -157,13 +215,41 @@ $middleware = GuzzleReplay::create(Mode::Replay, Options::create()
 );
 ```
 
+## Usage with dataProviders
+```php
+public static function dataProviderTestGetStatusCode(): array
+{
+    return [
+        'data-set-1' => ['givenStatusCode' => 201],
+        'data-set-2' => ['givenStatusCode' => 400],
+    ];
+}
+
+/**
+ * @dataProvider dataProviderTestGetStatusCode
+ */
+public function testGetStatusCode(int $givenStatusCode): void
+{
+    // GIVEN
+     
+    // append status code to testMethodName so we get distinct 
+    // recordings foreach data-set.
+    $options = Options::create();
+    $options->recordName->testMethodName .= $givenStatusCode;
+    
+    $guzzleClient = new Client();
+    $middleware = GuzzleReplay::create(GuzzleReplay::MODE_REPLAY, $options);
+    $middleware->inject($guzzleClient);
+
+    // WHEN
+    $apiClient = new SimpleApiClient($guzzleClient);
+    $responseStatusCode = $apiClient->getStatusCode($givenStatusCode);
+
+    // THEN
+    assertEquals($givenStatusCode, $responseStatusCode);
+}
+```
+
 ## License
 
 The MIT License (MIT). Please see [License File](LICENSE) for more information.
-
-## TODOS
-
-- Document recorded request transformer
-  - used to mask sensitive data
-  - normalize host names between different environments (staging, production, etc.)
-- Write documentation
