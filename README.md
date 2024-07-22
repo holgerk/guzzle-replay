@@ -251,7 +251,7 @@ Holgerk\GuzzleReplay\NoReplayFoundAssertionError:
 |
 ```
 
-</summary>
+</details>
 
 ## Usage with Laravel Http Facade
 ```php
