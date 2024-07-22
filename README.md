@@ -7,6 +7,11 @@
 Record guzzle requests and have them replayed during next runs.
 
 
+## Install
+```
+composer require holgerk/guzzle-replay --dev
+```
+
 ## Usage
 ```php
 use GuzzleHttp\Client;
@@ -19,7 +24,7 @@ $guzzleClient = new Client();
 $middleware = GuzzleReplay::create(Mode::Record);
 // inject middleware into guzzle client
 $middleware->inject($guzzleClient);
-// inject guzzle client into to your api that you want to test
+// inject guzzle client into to your api client that you want to test
 $apiClient = new GithubApiClient($guzzleClient);
 // do your tests with the api client...
 ```
