@@ -24,7 +24,9 @@ $apiClient = new GithubApi($guzzleClient);
 ## Example
 
 <details>
+
 <summary>SimpleApiClient.php</summary>
+
 ```php
 use GuzzleHttp\Client;
 
@@ -42,6 +44,7 @@ class SimpleApiClient
     }
 }
 ```
+
 </details>
 
 <details>
