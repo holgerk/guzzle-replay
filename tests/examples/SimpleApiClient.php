@@ -23,7 +23,10 @@ class SimpleApiClient
     {
         $response = $this->client->get(
             'https://httpbin.org/status/' . $code,
-            ['http_errors' => false]
+            [
+                'http_errors' => false,
+                'allow_redirects' => false,
+            ]
         );
         return $response->getStatusCode();
     }

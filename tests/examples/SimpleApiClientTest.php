@@ -58,7 +58,24 @@ class SimpleApiClientTest extends TestCase
         // THEN
         assertEquals($givenStatusCode, $responseStatusCode);
     }
+    
+    public function testMultipleRequests(): void
+    {
+        // GIVEN
+        $guzzleClient = new Client();
+        $middleware = GuzzleReplay::create(GuzzleReplay::MODE_REPLAY);
+        $middleware->inject($guzzleClient);
 
+        // WHEN
+        $apiClient = new SimpleApiClient($guzzleClient);
+        $firstStatusCode = $apiClient->getStatusCode(200);
+        $secondStatusCode = $apiClient->getStatusCode(303);
+
+        // THEN
+        assertEquals(200, $firstStatusCode);
+        assertEquals(303, $secondStatusCode);
+    }
+    
     public static function guzzleRecording_testGetUuid(): \Holgerk\GuzzleReplay\Recording
     {
         // GENERATED - DO NOT EDIT
@@ -275,6 +292,107 @@ class SimpleApiClientTest extends TestCase
                             'body' => '',
                             'version' => '1.1',
                             'reason' => 'BAD REQUEST',
+                        ],
+                    ],
+                ],
+            ]
+        );
+    }
+    
+    public static function guzzleRecording_testMultipleRequests(): \Holgerk\GuzzleReplay\Recording
+    {
+        // GENERATED - DO NOT EDIT
+        return \Holgerk\GuzzleReplay\Recording::fromArray(
+            [
+                'records' => [
+                    [
+                        'requestModel' => [
+                            'method' => 'GET',
+                            'uri' => 'https://httpbin.org/status/200',
+                            'headers' => [
+                                'User-Agent' => [
+                                    'GuzzleHttp/7',
+                                ],
+                                'Host' => [
+                                    'httpbin.org',
+                                ],
+                            ],
+                            'body' => '',
+                            'version' => '1.1',
+                        ],
+                        'responseModel' => [
+                            'status' => 200,
+                            'headers' => [
+                                'Date' => [
+                                    'Sun, 21 Jul 2024 20:21:11 GMT',
+                                ],
+                                'Content-Type' => [
+                                    'text/html; charset=utf-8',
+                                ],
+                                'Content-Length' => [
+                                    '0',
+                                ],
+                                'Connection' => [
+                                    'keep-alive',
+                                ],
+                                'Server' => [
+                                    'gunicorn/19.9.0',
+                                ],
+                                'Access-Control-Allow-Origin' => [
+                                    '*',
+                                ],
+                                'Access-Control-Allow-Credentials' => [
+                                    'true',
+                                ],
+                            ],
+                            'body' => '',
+                            'version' => '1.1',
+                            'reason' => 'OK',
+                        ],
+                    ],
+                    [
+                        'requestModel' => [
+                            'method' => 'GET',
+                            'uri' => 'https://httpbin.org/status/303',
+                            'headers' => [
+                                'User-Agent' => [
+                                    'GuzzleHttp/7',
+                                ],
+                                'Host' => [
+                                    'httpbin.org',
+                                ],
+                            ],
+                            'body' => '',
+                            'version' => '1.1',
+                        ],
+                        'responseModel' => [
+                            'status' => 303,
+                            'headers' => [
+                                'Date' => [
+                                    'Sun, 21 Jul 2024 20:21:11 GMT',
+                                ],
+                                'Content-Length' => [
+                                    '0',
+                                ],
+                                'Connection' => [
+                                    'keep-alive',
+                                ],
+                                'Server' => [
+                                    'gunicorn/19.9.0',
+                                ],
+                                'location' => [
+                                    '/redirect/1',
+                                ],
+                                'Access-Control-Allow-Origin' => [
+                                    '*',
+                                ],
+                                'Access-Control-Allow-Credentials' => [
+                                    'true',
+                                ],
+                            ],
+                            'body' => '',
+                            'version' => '1.1',
+                            'reason' => 'SEE OTHER',
                         ],
                     ],
                 ],

@@ -23,7 +23,8 @@ $apiClient = new GithubApi($guzzleClient);
 
 ## Example
 
-*SimpleApiClient.php*
+<details>
+<summary>SimpleApiClient.php</summary>
 ```php
 use GuzzleHttp\Client;
 
@@ -41,8 +42,10 @@ class SimpleApiClient
     }
 }
 ```
+</details>
 
-*SimpleApiClientTest.php*
+<details>
+<summary>SimpleApiClientTest.php</summary>
 ```php
 use GuzzleHttp\Client;
 use Holgerk\GuzzleReplay\GuzzleReplay;
@@ -74,6 +77,8 @@ class SimpleApiClientTest extends TestCase
     //   the recording.
     // - The name of the method is composed of: "guzzleRecording_" and the
     //   name of the executing test method.
+    // - If you don't like to have the recordings included in your test you
+    //   can opt-out 
     public static function guzzleRecording_testGetUuid(): \Holgerk\GuzzleReplay\Recording
     {
         // GENERATED - DO NOT EDIT
@@ -186,6 +191,51 @@ class SimpleApiClientTest extends TestCase
     }
 }
 ```
+<details>
+
+## Errors for unexpected requests
+```
+1) Holgerk\GuzzleReplay\Tests\examples\SimpleApiClientTest::testMultipleRequests
+Holgerk\GuzzleReplay\NoReplayFoundAssertionError:
+| No replay found for this request:
+| ---------------------------------
+| - Request
+|     method: GET
+|     uri: https://httpbin.org/status/201
+|     headers: {"User-Agent":["GuzzleHttp\/7"],"Host":["httpbin.org"]}
+|     body:
+|     version: 1.1
+|
+| Diff to best matching expected request:
+| ---------------------------------------
+| --- Expected
+| +++ Actual
+| @@ @@
+|  Request
+|      method: GET
+| -    uri: https://httpbin.org/status/200
+| +    uri: https://httpbin.org/status/201
+|      headers: {"User-Agent":["GuzzleHttp\/7"],"Host":["httpbin.org"]}
+|      body:
+|      version: 1.1
+|
+| All expected requests (sorted by difference):
+| ---------------------------------------------
+| - Request
+|     method: GET
+|     uri: https://httpbin.org/status/200
+|     headers: {"User-Agent":["GuzzleHttp\/7"],"Host":["httpbin.org"]}
+|     body:
+|     version: 1.1
+|
+| - Request
+|     method: GET
+|     uri: https://httpbin.org/status/303
+|     headers: {"User-Agent":["GuzzleHttp\/7"],"Host":["httpbin.org"]}
+|     body:
+|     version: 1.1
+|
+```
 
 ## Usage with Laravel Http Facade
 ```php
@@ -195,11 +245,24 @@ use Holgerk\GuzzleReplay\Mode;
 Http::globalMiddleware(GuzzleReplay::create(Mode::Replay));
 ```
 
-## Always recording to file and not to a method
+## Recording to file and not to a method
+
+*globally (for all tests)*
 ```php
 use Holgerk\GuzzleReplay\FileRecorder;
 use Holgerk\GuzzleReplay\Options;
 Options::$globalRecorderFactory = fn() => new FileRecorder();
+```
+
+*locally (within one test)*
+```php
+use Holgerk\GuzzleReplay\GuzzleReplay;
+use Holgerk\GuzzleReplay\FileRecorder;
+use Holgerk\GuzzleReplay\Options;
+$middleware = GuzzleReplay::create(
+    Mode::Record, 
+    Options::create()->setRecorder(new FileRecorder())
+);
 ```
 
 ## Masking sensistive data
