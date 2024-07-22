@@ -15,10 +15,13 @@ use Holgerk\GuzzleReplay\GuzzleReplay;
 
 $guzzleClient = new Client();
 // create middleware either in recording or in replay mode
-//$middleware = GuzzleReplay::create(Mode::Record);
-$middleware = GuzzleReplay::create(Mode::Replay);
+//$middleware = GuzzleReplay::create(Mode::Replay);
+$middleware = GuzzleReplay::create(Mode::Record);
+// inject middleware into guzzle client
 $middleware->inject($guzzleClient);
-$apiClient = new GithubApi($guzzleClient);
+// inject guzzle client into to your api that you want to test
+$apiClient = new GithubApiClient($guzzleClient);
+// do your tests with the api client...
 ```
 
 ## Example
@@ -83,7 +86,7 @@ class SimpleApiClientTest extends TestCase
     // - The name of the method is composed of: "guzzleRecording_" and the
     //   name of the executing test method.
     // - If you don't like to have the recordings included in your test you
-    //   can opt-out 
+    //   can opt-out (see: Recording to file and not to a method)
     public static function guzzleRecording_testGetUuid(): \Holgerk\GuzzleReplay\Recording
     {
         // GENERATED - DO NOT EDIT
@@ -200,6 +203,11 @@ class SimpleApiClientTest extends TestCase
 </details>
 
 ## Errors for unexpected requests
+
+<details>
+
+<summary>Output</summary>
+
 ```
 1) Holgerk\GuzzleReplay\Tests\examples\SimpleApiClientTest::testMultipleRequests
 Holgerk\GuzzleReplay\NoReplayFoundAssertionError:
@@ -242,6 +250,8 @@ Holgerk\GuzzleReplay\NoReplayFoundAssertionError:
 |     version: 1.1
 |
 ```
+
+</summary>
 
 ## Usage with Laravel Http Facade
 ```php
