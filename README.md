@@ -45,7 +45,9 @@ class SimpleApiClient
 </details>
 
 <details>
+
 <summary>SimpleApiClientTest.php</summary>
+
 ```php
 use GuzzleHttp\Client;
 use Holgerk\GuzzleReplay\GuzzleReplay;
@@ -191,6 +193,7 @@ class SimpleApiClientTest extends TestCase
     }
 }
 ```
+
 </details>
 
 ## Errors for unexpected requests
