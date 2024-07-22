@@ -191,7 +191,7 @@ class SimpleApiClientTest extends TestCase
     }
 }
 ```
-<details>
+</details>
 
 ## Errors for unexpected requests
 ```
