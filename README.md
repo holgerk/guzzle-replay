@@ -4,7 +4,7 @@
 ![GitHub Actions Workflow Status](https://img.shields.io/github/actions/workflow/status/holgerk/guzzle-replay/tests.yml)
 ![Packagist Downloads](https://img.shields.io/packagist/dt/holgerk/guzzle-replay)
 
-Record guzzle requests and have them replayed during next runs.
+Record guzzle requests and have them replayed during next runs. This helps creating tests for http api clients. 
 
 
 ## Install
@@ -333,6 +333,14 @@ public function testGetStatusCode(int $givenStatusCode): void
     assertEquals($givenStatusCode, $responseStatusCode);
 }
 ```
+
+## Best practices
+- Use recordings to test every public method of your api client, buttests of your api client consumer you should use a mocked version of your api client. Otherwise you pollute your tests with redundant recordings, which require you todo many rerecordings, when you change the implementation of one of your api clients methods. 
+
+## FAQ
+- Why not just mock the guzzle client?
+  Yes, this it is also an option. But if you want to ensure that your api client does not haved changed the exact http invocation, which in fact invalidates your fixtured response, one would need alot of verification boilerplate. Also it is teddious to fixture the exact response. 
+- 
 
 ## License
 
