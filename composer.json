@@ -32,7 +32,7 @@
         "symfony/var-dumper": "^6||^7",
         "symfony/process": "^6||^7",
         "holgerk/assert-golden": "^2.0.6",
-        "vimeo/psalm": "^5",
+        "vimeo/psalm": "^6",
         "vlucas/phpdotenv": "^5.6",
         "illuminate/collections": "^10.48",
         "illuminate/http": "^10.48",
