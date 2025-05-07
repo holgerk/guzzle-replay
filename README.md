@@ -71,6 +71,7 @@ class SimpleApiClientTest extends TestCase
     {
         // GIVEN
         $guzzleClient = new Client();
+        //$middleware = GuzzleReplay::create(GuzzleReplay::MODE_RECORD);
         $middleware = GuzzleReplay::create(GuzzleReplay::MODE_REPLAY);
         $middleware->inject($guzzleClient);
 
@@ -88,10 +89,11 @@ class SimpleApiClientTest extends TestCase
 
 </details>
 
-- This following file is generated on first recording and updated on following recordings. 
-- It contains all responses and requests that happen during the recording.
-- The name of the file is composed of test class name, test method name and the suffix: "_guzzleRecording.php".
-- If you don't like to have the recordings in separate files you can opt-out (see: Recording to method and not to a file)
+The following file is generated on first recording and updated on following recordings.
+(for this you need to create the middleware with record mode: `GuzzleReplay::create(GuzzleReplay::MODE_RECORD)`)
+It contains all responses and requests that happen during the recording.
+The name of the file is composed of test class name, test method name and the suffix: "_guzzleRecording.php".
+If you don't like to have the recordings in separate files you can opt-out (see: Recording to method and not to a file)
 
 <details>
 
