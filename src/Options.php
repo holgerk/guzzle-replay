@@ -37,7 +37,7 @@ class Options
             self::$globalRecordNameFactory ?? fn(int $distance) => RecordName::inflect($distance)
         )(3);
         $self->recorder = (
-            self::$globalRecorderFactory ?? fn() => new MethodRecorder()
+            self::$globalRecorderFactory ?? fn() => new FileRecorder()
         )();
         $self->requestTransformer = self::$globalRequestTransformer ?? fn() => static function (RequestModel $_): void { /* noop */ };
         $self->responseTransformer = self::$globalResponseTransformer ?? fn() => static function (ResponseModel $_): void { /* noop */ };

@@ -4,6 +4,7 @@ namespace Holgerk\GuzzleReplay\Tests\examples;
 
 use Dotenv\Dotenv;
 use GuzzleHttp\Client;
+use Holgerk\GuzzleReplay\MethodRecorder;
 use Holgerk\GuzzleReplay\Options;
 use Holgerk\GuzzleReplay\GuzzleReplay;
 use Holgerk\GuzzleReplay\RequestModel;
@@ -31,7 +32,7 @@ class GithubApiTest extends TestCase
         // this is normally done by laravels dependency container
         Http::swap(new \Illuminate\Http\Client\Factory());
 
-        Http::globalMiddleware(GuzzleReplay::create(GuzzleReplay::MODE_REPLAY));
+        Http::globalMiddleware(GuzzleReplay::create(GuzzleReplay::MODE_REPLAY, Options::create()->setRecorder(new MethodRecorder())));
         assertGolden(
             ['uuid' => 'd7e0d101-16ae-4250-9c2c-97d10dc9e0fe'],
             Http::get('https://httpbin.org/uuid')->json()
@@ -47,9 +48,10 @@ class GithubApiTest extends TestCase
                 ->setRequestTransformer(static function (RequestModel $requestModel) {
                     // mask authorization token, to not leak sensitive data
                     $requestModel->replaceString($_ENV['GITHUB_TOKEN'], 'XXX');
-                    // or you can unset the header 
+                    // or you can unset the header
                     //unset($requestModel->headers['Authorization']);
                 })
+                ->setRecorder(new MethodRecorder())
         );
 
         $middleware->inject($client);

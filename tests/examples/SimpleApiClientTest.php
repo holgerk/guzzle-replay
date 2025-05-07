@@ -4,6 +4,7 @@ namespace Holgerk\GuzzleReplay\Tests\examples;
 
 use GuzzleHttp\Client;
 use Holgerk\GuzzleReplay\GuzzleReplay;
+use Holgerk\GuzzleReplay\MethodRecorder;
 use Holgerk\GuzzleReplay\Options;
 use PHPUnit\Framework\TestCase;
 use function PHPUnit\Framework\assertEquals;
@@ -23,8 +24,8 @@ class SimpleApiClientTest extends TestCase
         $secondUuid = $apiClient->getUuid();
 
         // THEN
-        assertEquals('f7b85c93-f24c-4a5c-895f-b2e89bd5d4bc', $firstUuid);
-        assertEquals('7761590c-24c9-4d82-aad4-7b890f9beb97', $secondUuid);
+        assertEquals('bdd37445-2455-44d3-a00d-18d6220ff565', $firstUuid);
+        assertEquals('ea175c37-df2a-42aa-b9b8-c3eac8dfb80b', $secondUuid);
     }
 
     public static function dataProviderTestGetStatusCode(): array
@@ -42,10 +43,11 @@ class SimpleApiClientTest extends TestCase
     {
         // GIVEN
 
-        // append status code to testMethodName so we get distinct 
+        // append status code to testMethodName so we get distinct
         // recordings foreach data-set.
         $options = Options::create();
         $options->recordName->testMethodName .= $givenStatusCode;
+        $options->setRecorder(new MethodRecorder());
 
         $guzzleClient = new Client();
         $middleware = GuzzleReplay::create(GuzzleReplay::MODE_REPLAY, $options);
@@ -58,12 +60,12 @@ class SimpleApiClientTest extends TestCase
         // THEN
         assertEquals($givenStatusCode, $responseStatusCode);
     }
-    
+
     public function testMultipleRequests(): void
     {
         // GIVEN
         $guzzleClient = new Client();
-        $middleware = GuzzleReplay::create(GuzzleReplay::MODE_REPLAY);
+        $middleware = GuzzleReplay::create(GuzzleReplay::MODE_REPLAY, Options::create()->setRecorder(new MethodRecorder()));
         $middleware->inject($guzzleClient);
 
         // WHEN
@@ -75,7 +77,7 @@ class SimpleApiClientTest extends TestCase
         assertEquals(200, $firstStatusCode);
         assertEquals(303, $secondStatusCode);
     }
-    
+
     public static function guzzleRecording_testGetUuid(): \Holgerk\GuzzleReplay\Recording
     {
         // GENERATED - DO NOT EDIT
@@ -298,7 +300,7 @@ class SimpleApiClientTest extends TestCase
             ]
         );
     }
-    
+
     public static function guzzleRecording_testMultipleRequests(): \Holgerk\GuzzleReplay\Recording
     {
         // GENERATED - DO NOT EDIT

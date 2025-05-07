@@ -13,7 +13,7 @@ use function Holgerk\AssertGolden\assertGolden;
 
 class OptionsTest extends TestCase
 {
-    protected function tearDown(): void 
+    protected function tearDown(): void
     {
         parent::tearDown();
         Options::resetGlobals();
@@ -32,9 +32,9 @@ class OptionsTest extends TestCase
 
     public function testGlobalRecorderFactory(): void
     {
-        assertGolden(MethodRecorder::class, get_class(Options::create()->recorder));
-        Options::$globalRecorderFactory = fn() => new FileRecorder();
         assertGolden(FileRecorder::class, get_class(Options::create()->recorder));
+        Options::$globalRecorderFactory = fn() => new MethodRecorder();
+        assertGolden(MethodRecorder::class, get_class(Options::create()->recorder));
     }
 
     public function testGlobalRequestTransformer(): void
@@ -55,5 +55,5 @@ class OptionsTest extends TestCase
         Options::$globalResponseTransformer = fn(ResponseModel $r) => $r->status = 300;
         (Options::create()->responseTransformer)($response);
         assertGolden(300, $response->status);
-    }    
+    }
 }

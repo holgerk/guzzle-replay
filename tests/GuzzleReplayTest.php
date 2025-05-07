@@ -5,6 +5,7 @@ namespace Holgerk\GuzzleReplay\Tests;
 use GuzzleHttp\Client;
 use GuzzleHttp\HandlerStack;
 use Holgerk\GuzzleReplay\GuzzleReplay;
+use Holgerk\GuzzleReplay\MethodRecorder;
 use Holgerk\GuzzleReplay\Mode;
 use Holgerk\GuzzleReplay\Options;
 use Holgerk\GuzzleReplay\RecordName;
@@ -70,7 +71,7 @@ class GuzzleReplayTest extends TestCase
     public function testReplay(): void
     {
         $stack = HandlerStack::create();
-        $middleware = GuzzleReplay::create(Mode::Replay);
+        $middleware = GuzzleReplay::create(Mode::Replay, Options::create()->setRecorder(new MethodRecorder()));
         $stack->push($middleware);
         $client = new Client(['handler' => $stack]);
 
@@ -112,6 +113,7 @@ class GuzzleReplayTest extends TestCase
             Mode::Replay,
             Options::create()
                 ->setRecordName(RecordName::make(__CLASS__, __FUNCTION__))
+                ->setRecorder(new MethodRecorder())
         );
         $stack->push($middleware);
         $client = new Client(['handler' => $stack]);
@@ -126,7 +128,7 @@ class GuzzleReplayTest extends TestCase
     public function testInject(): void
     {
         $client = new Client();
-        GuzzleReplay::create(Mode::Replay)->inject($client);
+        GuzzleReplay::create(Mode::Replay, Options::create()->setRecorder(new MethodRecorder()))->inject($client);
         $response = $client->get('https://httpbin.org/uuid');
         $data = json_decode($response->getBody()->getContents());
         self::assertEquals('b32f97f9-db0d-4614-ba1e-a777c02864c3', $data->uuid);
