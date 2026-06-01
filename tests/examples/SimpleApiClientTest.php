@@ -6,6 +6,7 @@ use GuzzleHttp\Client;
 use Holgerk\GuzzleReplay\GuzzleReplay;
 use Holgerk\GuzzleReplay\MethodRecorder;
 use Holgerk\GuzzleReplay\Options;
+use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
 use function PHPUnit\Framework\assertEquals;
 
@@ -36,9 +37,7 @@ class SimpleApiClientTest extends TestCase
         ];
     }
 
-    /**
-     * @dataProvider dataProviderTestGetStatusCode
-     */
+    #[DataProvider('dataProviderTestGetStatusCode')]
     public function testGetStatusCode(int $givenStatusCode): void
     {
         // GIVEN
