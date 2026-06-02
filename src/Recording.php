@@ -62,9 +62,9 @@ final class Recording
         }
 
         if ($foundRecord) {
-            $alreadyUsed = $this->usedRecords[spl_object_hash($record)] ?? false;
+            $alreadyUsed = $this->usedRecords[spl_object_hash($foundRecord)] ?? false;
             if ($alreadyUsed) {
-                $this->throwReplayAlreadyUsedAssertionError($record->requestModel);
+                $this->throwReplayAlreadyUsedAssertionError($foundRecord->requestModel);
             }
             $this->usedRecords[spl_object_hash($foundRecord)] = true;
             return $foundRecord->responseModel->toResponse();
