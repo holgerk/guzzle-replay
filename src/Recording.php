@@ -93,6 +93,8 @@ final class Recording
 
         $builder = new UnifiedDiffOutputBuilder(
             "--- Expected\n+++ Actual\n",
+            false,
+            3,
             false
         );
 
