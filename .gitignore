@@ -1,5 +1,6 @@
 /vendor/
 /.idea/
+/.claude/
 composer.lock
 .phpunit.cache
 /tests/GuzzleReplayTest_record_test/*.test.php
