@@ -125,37 +125,46 @@ final class Recording
         throw new NoReplayFoundAssertionError($message);
     }
 
+    private function stringDistance(string $a, string $b): int
+    {
+        if (strlen($a) <= 255 && strlen($b) <= 255) {
+            return levenshtein($a, $b);
+        }
+        similar_text($a, $b, $percent);
+        return (int) round((1 - $percent / 100) * max(strlen($a), strlen($b)));
+    }
+
     private function sortRecordsByDistanceToRequest(RequestModel $requestModel): array
     {
         $differenceByRecord = [];
         foreach ($this->records as $record) {
             $difference = 0;
             if ($requestModel->method != $record->requestModel->method) {
-                $difference += levenshtein(
+                $difference += $this->stringDistance(
                     $requestModel->method,
                     $record->requestModel->method
                 );
             }
             if ($requestModel->uri != $record->requestModel->uri) {
-                $difference += levenshtein(
+                $difference += $this->stringDistance(
                     $requestModel->uri,
                     $record->requestModel->uri
                 );
             }
             if ($requestModel->headers != $record->requestModel->headers) {
-                $difference += levenshtein(
+                $difference += $this->stringDistance(
                     json_encode($requestModel->headers),
                     json_encode($record->requestModel->headers)
                 );
             }
             if ($requestModel->body != $record->requestModel->body) {
-                $difference += levenshtein(
+                $difference += $this->stringDistance(
                     $requestModel->body,
                     $record->requestModel->body
                 );
             }
             if ($requestModel->version != $record->requestModel->version) {
-                $difference += levenshtein(
+                $difference += $this->stringDistance(
                     $requestModel->version,
                     $record->requestModel->version
                 );
