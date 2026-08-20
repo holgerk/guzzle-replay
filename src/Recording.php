@@ -6,6 +6,8 @@ namespace Holgerk\GuzzleReplay;
 
 use GuzzleHttp\Psr7\Response;
 use SebastianBergmann\Diff\Differ;
+use SebastianBergmann\Diff\Output\DiffOutputBuilderInterface;
+use SebastianBergmann\Diff\Output\StrictUnifiedDiffOutputBuilder;
 use SebastianBergmann\Diff\Output\UnifiedDiffOutputBuilder;
 
 final class Recording
@@ -73,6 +75,25 @@ final class Recording
         $this->throwNoReplayFoundAssertionError($requestModel);
     }
 
+    /**
+     * sebastian/diff 9 removed UnifiedDiffOutputBuilder.
+     */
+    private function createDiffOutputBuilder(): DiffOutputBuilderInterface
+    {
+        $header = "--- Expected\n+++ Actual\n";
+
+        if (class_exists(UnifiedDiffOutputBuilder::class)) {
+            return new UnifiedDiffOutputBuilder($header, false, 3, false);
+        }
+
+        return new StrictUnifiedDiffOutputBuilder([
+            'header' => $header,
+            'addLineNumbers' => false,
+            'contextLines' => 3,
+            'emitNoLineEndEofWarning' => false,
+        ]);
+    }
+
     private function throwReplayAlreadyUsedAssertionError(RequestModel $requestModel): void
     {
         $message = <<<EOS
@@ -91,14 +112,7 @@ final class Recording
         // no matching response found, create a helpful exception
         $sortedRecords = $this->sortRecordsByDistanceToRequest($requestModel);
 
-        $builder = new UnifiedDiffOutputBuilder(
-            "--- Expected\n+++ Actual\n",
-            false,
-            3,
-            false
-        );
-
-        $differ = new Differ($builder);
+        $differ = new Differ($this->createDiffOutputBuilder());
         $diff = trim($differ->diff((string) $sortedRecords[0]->requestModel, (string) $requestModel));
 
         $message = <<<EOS

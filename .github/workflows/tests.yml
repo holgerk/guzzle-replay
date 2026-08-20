@@ -34,3 +34,29 @@ jobs:
 
     - name: Unit Tests
       run: composer test:unit
+
+  # vimeo/psalm ^6 still requires sebastian/diff ^8, so the default matrix never
+  # installs PHPUnit 13.2+ / diff 9. Drop psalm here so the StrictUnified path runs.
+  phpunit-13-diff-9:
+    runs-on: ubuntu-latest
+    name: PHP 8.4 - PHPUnit 13.2+ / diff 9
+
+    steps:
+    - name: Checkout
+      uses: actions/checkout@v4
+
+    - name: Setup PHP
+      uses: shivammathur/setup-php@v2
+      with:
+        php-version: '8.4'
+        tools: composer:v2
+        coverage: none
+
+    - name: Install PHP dependencies without psalm
+      run: composer remove --dev vimeo/psalm --no-interaction --no-progress --ansi
+
+    - name: Assert sebastian/diff 9 is installed
+      run: test ! -f vendor/sebastian/diff/src/Output/UnifiedDiffOutputBuilder.php
+
+    - name: Unit Tests
+      run: composer test:unit
