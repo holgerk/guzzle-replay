@@ -82,10 +82,12 @@ final class Recording
     {
         $header = "--- Expected\n+++ Actual\n";
 
+        // support for "sebastian/diff": "^5||^6||^7||^8"
         if (class_exists(UnifiedDiffOutputBuilder::class)) {
             return new UnifiedDiffOutputBuilder($header, false, 3, false);
         }
 
+        // support for "sebastian/diff": "^9"
         return new StrictUnifiedDiffOutputBuilder([
             'header' => $header,
             'addLineNumbers' => false,
